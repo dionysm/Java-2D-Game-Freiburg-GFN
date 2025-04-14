@@ -1,5 +1,6 @@
 package io.github.tesgame;
-
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -11,8 +12,9 @@ public class Projectile {
     private Texture texture;
     private float width, height;
     private float scale = 0.2f; // Scale factor for the sprite size
-
+    Sound projectileSFX = Gdx.audio.newSound(Gdx.files.internal("sfx/ThrowStar.wav"));
     public Projectile(float x, float y, float targetX, float targetY) {
+        projectileSFX.play();
         position = new Vector2(x, y);
 
         // Load the projectile texture
