@@ -1,5 +1,5 @@
-// Class Player
 package io.github.tesgame;
+
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -25,6 +25,8 @@ public class Player {
     private Animation<TextureRegion> currentAnimation;
 
     private boolean isMoving;
+
+    private Weapon weapon;
 
     public Player() {
         spriteSheet = new Texture("sprites/SpriteSheet.png");
@@ -56,6 +58,8 @@ public class Player {
 
         x = 280;
         y = 200;
+
+        weapon = new Weapon(); // Initialize weapon
     }
 
     public void update(float delta) {
@@ -84,14 +88,19 @@ public class Player {
         } else {
             stateTime = 0f;
         }
+
+        weapon.update(delta, x, y); // Update weapon (projectiles)
     }
 
     public void draw(SpriteBatch batch) {
         TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, x, y);
+
+        weapon.draw(batch); // Draw projectiles
     }
 
     public void dispose() {
         spriteSheet.dispose();
+        weapon.dispose(); // Dispose weapon resources
     }
 }
