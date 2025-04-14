@@ -16,7 +16,7 @@ public class Weapon {
 
     public void update(float delta, float playerX, float playerY, Vector2 targetPosition) {
         // Check if Space key is pressed to fire a projectile
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.justTouched()) {
             // Create a new projectile pointing towards the target position in world coordinates
             projectiles.add(new Projectile(playerX, playerY, targetPosition.x, targetPosition.y));
         }

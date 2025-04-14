@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+//TODO: Make Enemies spawn dynamically around the player not around a fixed val
+// TODO: erben von Player Klasse ??
+
 public class Enemy {
     private Vector2 position;
     private Vector2 velocity;
