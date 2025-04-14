@@ -12,7 +12,7 @@ public class Player {
     private float x, y;
     private float speed = 100f;
     private static final int FRAME_COLS = 4;
-    private static final int FRAME_ROWS = 7;
+    private static final int FRAME_ROWS = 4;
     private Texture spriteSheet;
     private float stateTime;
     private Animation<TextureRegion> walkDown, walkLeft, walkRight, walkUp;
@@ -22,7 +22,7 @@ public class Player {
     private Weapon weapon;  // Weapon instance
 
     public Player() {
-        spriteSheet = new Texture("sprites/SpriteSheet.png");
+        spriteSheet = new Texture("sprites/Walk.png");
 
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
             spriteSheet.getWidth() / FRAME_COLS,

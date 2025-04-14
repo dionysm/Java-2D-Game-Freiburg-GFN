@@ -25,7 +25,7 @@ public class FirstScreen extends InputAdapter implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0, 0);
+        ScreenUtils.clear(0, 198, 10, 0);
         player.update(delta);
         batch.begin();
         player.draw(batch);
