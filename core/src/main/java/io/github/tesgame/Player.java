@@ -4,10 +4,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class Hero {
+public class Player {
     private Sprite sprite;
 
-    public Hero() {
+    public Player() {
         Texture texture = new Texture("walk.png"); // Bild im assets-Ordner
         sprite = new Sprite(texture);
         sprite.setPosition(100, 100); // Anfangsposition

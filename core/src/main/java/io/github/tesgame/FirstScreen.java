@@ -34,19 +34,19 @@ public class FirstScreen  extends InputAdapter implements Screen {
        batch.begin();
        stage.draw();
        batch.draw(player, playerx, playery);
-       if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+       if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
            playery += Gdx.graphics.getDeltaTime() * Speed;
 
        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             playery -= Gdx.graphics.getDeltaTime() * Speed;
 
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.A) || Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
             playerx -= Gdx.graphics.getDeltaTime() * Speed;
 
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.D) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
             playerx += Gdx.graphics.getDeltaTime() * Speed;
 
         }
