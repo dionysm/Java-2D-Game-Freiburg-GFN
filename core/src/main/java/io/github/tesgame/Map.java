@@ -11,13 +11,15 @@ public class Map {
     private static final int SPRITESHEET_ROWS = 9;
     private static final int TILE_WIDTH = 32; //Kachelbreite Pixel
     private static final int TILE_HEIGHT = 32;
-    private static final int INITIAL_WIDTH = 40;
-    private static final int INITIAL_HEIGHT = 25;
+    private static final int INITIAL_WIDTH = 64;
+    private static final int INITIAL_HEIGHT = 36;
 
     private Texture spriteSheet;
     private TextureRegion[][] tiles;
     private TextureRegion[][] mapTiles;
-
+    // Für Verschiebung Links und unten
+    private int offsetX = 0;
+    private int offsetY = 0;
     private int mapWidth = INITIAL_WIDTH;
     private int mapHeight = INITIAL_HEIGHT;
 
@@ -34,6 +36,8 @@ public class Map {
 
         // Map zufällig mit den erlaubten Kacheln füllen
         generateMap();
+        offsetX = mapWidth / 2;
+        offsetY = mapHeight / 2;
     }
 
     private void generateMap() {
@@ -53,7 +57,7 @@ public class Map {
     public void draw(SpriteBatch batch) {
         for (int y = 0; y < mapHeight; y++) {
             for (int x = 0; x < mapWidth; x++) {
-                batch.draw(mapTiles[y][x], x * TILE_WIDTH, y * TILE_HEIGHT);
+                batch.draw(mapTiles[y][x], (x - offsetX) * TILE_WIDTH, (y - offsetY) * TILE_HEIGHT);  //-354 -160
             }
         }
     }
@@ -66,23 +70,23 @@ public class Map {
     }
 
     public void expandMapIfNeeded(Vector2 playerPosition) {
-        int tileX = (int)(playerPosition.x / TILE_WIDTH);
-        int tileY = (int)(playerPosition.y / TILE_HEIGHT);
+        int tileX = (int)(playerPosition.x / TILE_WIDTH) + offsetX;
+        int tileY = (int)(playerPosition.y / TILE_HEIGHT) + offsetY;
 
         boolean expanded = false;
 
-        if (tileX >= mapWidth - 8) {
+        if (tileX >= mapWidth - 24) {
             expandRight();
             expanded = true;
-        } else if (tileX <= 8) {
+        } else if (tileX <= 24) {
             expandLeft();
             expanded = true;
         }
 
-        if (tileY >= mapHeight - 8) {
+        if (tileY >= mapHeight - 24) {
             expandTop();
             expanded = true;
-        } else if (tileY <= 8) {
+        } else if (tileY <= 24) {
             expandBottom();
             expanded = true;
         }
@@ -104,6 +108,7 @@ public class Map {
 
     private void expandLeft() {
         mapWidth += 1;
+        offsetX += 1; // ganz wichtig!
         TextureRegion[][] newMap = new TextureRegion[mapHeight][mapWidth];
         for (int y = 0; y < mapHeight; y++) {
             System.arraycopy(mapTiles[y], 0, newMap[y], 1, mapTiles[y].length);
@@ -124,6 +129,7 @@ public class Map {
 
     private void expandBottom() {
         mapHeight += 1;
+        offsetY += 1; // ganz wichtig!
         TextureRegion[][] newMap = new TextureRegion[mapHeight][mapWidth];
         System.arraycopy(mapTiles, 0, newMap, 1, mapTiles.length);
         for (int x = 0; x < mapWidth; x++) {

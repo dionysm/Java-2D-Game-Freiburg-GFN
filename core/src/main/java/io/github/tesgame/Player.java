@@ -14,7 +14,7 @@ public class Player {
     private float x, y;
     private float speed = 100f;
     private static final int FRAME_COLS = 4;
-    private static final int FRAME_ROWS = 7;
+    private static final int FRAME_ROWS = 4;
     private Texture spriteSheet;
     private Texture whitePixel;
     private float stateTime;
@@ -34,7 +34,7 @@ public class Player {
     private HeartDisplay heartDisplay;
 
     public Player() {
-        spriteSheet = new Texture("sprites/SpriteSheet.png");
+        spriteSheet = new Texture("sprites/Walk.png");
 
         // Create a 1x1 white pixel for UI elements if needed
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
