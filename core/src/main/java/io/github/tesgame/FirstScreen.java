@@ -2,6 +2,7 @@ package io.github.tesgame;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -14,6 +15,8 @@ public class FirstScreen extends InputAdapter implements Screen {
 
     @Override
     public void show() {
+        Sound bgMusic = Gdx.audio.newSound(Gdx.files.internal("sfx/FinalArea.ogg"));
+        // UNCOMMENTED FOR TESTING bgMusic.play();
         batch = new SpriteBatch();
         player = new Player();
         cameraController = new CameraController(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -29,6 +32,7 @@ public class FirstScreen extends InputAdapter implements Screen {
 
     @Override
     public void render(float delta) {
+
         ScreenUtils.clear(0, 198, 10, 0);
 
         // Pass camera controller to player for coordinate conversion

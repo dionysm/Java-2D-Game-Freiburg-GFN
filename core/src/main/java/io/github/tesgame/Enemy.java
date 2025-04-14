@@ -1,5 +1,7 @@
 package io.github.tesgame;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -35,6 +37,10 @@ public class Enemy {
     // Animation constants based on the sprite sheet
     private static final int FRAME_COLS = 4;
     private static final int FRAME_ROWS = 4;
+
+
+    // SOUNDS
+    Sound hitSound = Gdx.audio.newSound(Gdx.files.internal("sfx/Impact.wav"));
 
     public Enemy(float x, float y) {
         position = new Vector2(x, y);
@@ -147,6 +153,7 @@ public class Enemy {
     }
 
     public void takeDamage(float damage) {
+        hitSound.play();
         health -= 1; // Each hit takes 1 health point
         if (health <= 0) {
             isDead = true;
