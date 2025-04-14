@@ -1,28 +1,42 @@
 package io.github.tesgame;
-
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.Gdx;
+
 
 public class Player {
-    private Sprite sprite;
+    private Texture texture;
+    private float x, y;
+    private float speed = 100f;
 
     public Player() {
-        Texture texture = new Texture("walk.png"); // Bild im assets-Ordner
-        sprite = new Sprite(texture);
-        sprite.setPosition(100, 100); // Anfangsposition
-        sprite.setSize(64, 64); // Größe anpassen (optional)
+        texture = new Texture("sprites/SpriteSheet.png");
+        x = 280;
+        y = 200;
     }
 
-    public void update(float deltaTime) {
-        // Hier könntest du Bewegungslogik einbauen
+    public void update(float delta) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            y += speed * delta;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            y -= speed * delta;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            x -= speed * delta;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            x += speed * delta;
+        }
     }
 
     public void draw(SpriteBatch batch) {
-        sprite.draw(batch);
+        batch.draw(texture, x, y);
     }
 
     public void dispose() {
-        sprite.getTexture().dispose();
+        texture.dispose();
     }
 }
