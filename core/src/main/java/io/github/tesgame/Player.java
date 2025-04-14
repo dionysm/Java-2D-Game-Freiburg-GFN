@@ -7,10 +7,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import java.util.ArrayList;
 
 public class Player {
-
     private float x, y;
     private float speed = 100f;
     private static final int FRAME_COLS = 4;
@@ -21,7 +19,7 @@ public class Player {
     private Animation<TextureRegion> currentAnimation;
     private boolean isMoving;
 
-    private ArrayList<Projectile> projectiles;  // List to store projectiles
+    private Weapon weapon;  // Weapon instance
 
     public Player() {
         spriteSheet = new Texture("sprites/SpriteSheet.png");
@@ -54,7 +52,7 @@ public class Player {
         x = 280;
         y = 200;
 
-        projectiles = new ArrayList<>();  // Initialize projectiles list
+        weapon = new Weapon();  // Initialize weapon
     }
 
     public void update(float delta) {
@@ -99,15 +97,8 @@ public class Player {
             stateTime = 0f;
         }
 
-        // Handle shooting (Space key)
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            shoot();  // Call shoot method
-        }
-
-        // Update projectiles
-        for (Projectile projectile : projectiles) {
-            projectile.update(delta);
-        }
+        // Update weapon (handles shooting)
+        weapon.update(delta, x + 32, y + 32);  // Offset to center of player sprite
     }
 
     public void draw(SpriteBatch batch) {
@@ -115,27 +106,28 @@ public class Player {
         TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, x, y);
 
-        // Draw projectiles
-        for (Projectile projectile : projectiles) {
-            projectile.draw(batch);
-        }
+        // Draw weapon projectiles
+        weapon.draw(batch);
     }
 
-    // Method to handle shooting (space bar)
-    private void shoot() {
-        // Get the cursor position
-        Vector2 cursorPos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-        cursorPos.y = Gdx.graphics.getHeight() - cursorPos.y;  // Adjust for coordinate system
+    public float getX() {
+        return x;
+    }
 
-        // The projectile will now spawn at the player's center (adjust if necessary)
-        float spawnX = x + 32; // Offset for 64x64 player sprite
-        float spawnY = y + 32; // Offset for 64x64 player sprite
+    public float getY() {
+        return y;
+    }
 
-        // Create a new projectile at the center of the player, pointing towards the cursor
-        projectiles.add(new Projectile(spawnX, spawnY, cursorPos.x, cursorPos.y));
+    public Vector2 getPosition() {
+        return new Vector2(x + 32, y + 32);  // Return center position
+    }
+
+    public Weapon getWeapon() {
+        return weapon;
     }
 
     public void dispose() {
         spriteSheet.dispose();
+        weapon.dispose();
     }
 }

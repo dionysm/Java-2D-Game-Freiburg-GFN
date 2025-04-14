@@ -42,6 +42,10 @@ public class Weapon {
         }
     }
 
+    public ArrayList<Projectile> getProjectiles() {
+        return projectiles;
+    }
+
     public void dispose() {
         // Dispose of all projectiles' resources
         for (Projectile p : projectiles) {
