@@ -1,31 +1,61 @@
 package io.github.tesgame;
-
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.graphics.Texture;
 
-public class FirstScreen implements Screen {
-
+public class FirstScreen  extends InputAdapter implements Screen {
     private ShapeRenderer shapeRenderer;
-
+    Stage stage;
+    SpriteBatch batch;
+    Texture player;
+    float Speed = 50.0f;
+    float playerx = 280;
+    float playery = 200;
     @Override
     public void show() {
-        shapeRenderer = new ShapeRenderer();
+        player = new Texture("sprites/SpriteSheet.png");
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
+        batch = new SpriteBatch();
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+       Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+       ScreenUtils.clear(0, 0, 0, 0);
+       batch.begin();
+       stage.draw();
+       batch.draw(player, playerx, playery);
+       if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+           System.out.println("W");
+           playery += Gdx.graphics.getDeltaTime() * Speed;
 
-        float centerX = Gdx.graphics.getWidth() / 2f;
-        float centerY = Gdx.graphics.getHeight() / 2f;
+       }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+            System.out.println("S");
+            playery -= Gdx.graphics.getDeltaTime() * Speed;
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(1, 0, 0, 1);
-        shapeRenderer.circle(centerX, centerY, 10);
-        shapeRenderer.end();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
+            System.out.println("A");
+            playerx -= Gdx.graphics.getDeltaTime() * Speed;
+
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+            System.out.println("D");
+            playerx += Gdx.graphics.getDeltaTime() * Speed;
+
+        }
+
+        batch.end();
     }
 
     @Override
