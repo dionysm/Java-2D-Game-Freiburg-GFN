@@ -1,11 +1,11 @@
 package io.github.tesgame;
+
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
 public class FirstScreen extends InputAdapter implements Screen {
     SpriteBatch batch;
@@ -13,15 +13,18 @@ public class FirstScreen extends InputAdapter implements Screen {
     CameraController cameraController;
     EnemyManager enemyManager;
     Map map;
+    ScoreDisplay scoreDisplay;
+    Sound bgMusic;
 
     @Override
     public void show() {
-        Sound bgMusic = Gdx.audio.newSound(Gdx.files.internal("sfx/FinalArea.ogg"));
-        // UNCOMMENTED FOR TESTING bgMusic.play();
+        bgMusic = Gdx.audio.newSound(Gdx.files.internal("sfx/FinalArea.ogg"));
+        bgMusic.play();
         batch = new SpriteBatch();
         player = new Player();
         cameraController = new CameraController(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        enemyManager = new EnemyManager();
+        scoreDisplay = new ScoreDisplay();
+        enemyManager = new EnemyManager(scoreDisplay); // Pass scoreDisplay to EnemyManager
         map = new Map();
 
         // Set up input processor
@@ -29,12 +32,10 @@ public class FirstScreen extends InputAdapter implements Screen {
 
         // Debug message to confirm initialization
         System.out.println("Game initialization complete");
-        map = new Map();
     }
 
     @Override
     public void render(float delta) {
-
         ScreenUtils.clear(0, 198, 10, 0);
 
         // Pass camera controller to player for coordinate conversion
@@ -46,21 +47,21 @@ public class FirstScreen extends InputAdapter implements Screen {
         // Set batch to use camera
         batch.setProjectionMatrix(cameraController.getCamera().combined);
 
-        // Draw everything
+        // Draw game objects
         batch.begin();
-
         map.draw(batch);          // zuerst Boden
         map.drawTrees(batch);     // dann Bäume
         player.draw(batch);       // dann Spieler
         map.expandMapIfNeeded(player.getPosition());
-        enemyManager.draw(batch); // Added this line to draw enemies
+        enemyManager.draw(batch);
         batch.end();
+
+        // Draw HUD (score)
+        scoreDisplay.draw(batch);
     }
 
     @Override
-    public void resize(int width, int height) {
-        // Resize logic (optional)
-    }
+    public void resize(int width, int height) {}
 
     @Override
     public void pause() {}
@@ -77,5 +78,7 @@ public class FirstScreen extends InputAdapter implements Screen {
         player.dispose();
         enemyManager.dispose();
         map.dispose();
+        scoreDisplay.dispose();
+        bgMusic.dispose();
     }
 }

@@ -12,8 +12,10 @@ public class EnemyManager {
     private float spawnRate = 2.0f;
     private float spawnDistance = 300;
     private int maxEnemies = 50;
+    private ScoreDisplay scoreDisplay; // Add this field
 
-    public EnemyManager() {
+    public EnemyManager(ScoreDisplay scoreDisplay) {
+        this.scoreDisplay = scoreDisplay; // Initialize the field
         enemies = new ArrayList<>();
         // Spawn initial enemies
         for (int i = 0; i < 5; i++) {
@@ -39,31 +41,33 @@ public class EnemyManager {
             Enemy enemy = iterator.next();
             enemy.update(delta, playerPosition, player);
 
-            // Remove dead enemies and heal player
+            // Remove dead enemies, heal player, and increment score
             if (enemy.isDead()) {
                 player.heal(1);
+                scoreDisplay.incrementScore(); // Increment score here
                 iterator.remove();
             }
         }
 
         // Check collisions with player weapons
         ArrayList<Projectile> projectiles = playerWeapon.getProjectiles();
-        Iterator<Projectile> projectileIterator = projectiles.iterator();
+        if (projectiles != null) { // Add null check
+            Iterator<Projectile> projectileIterator = projectiles.iterator();
+            while (projectileIterator.hasNext()) {
+                Projectile projectile = projectileIterator.next();
+                boolean hitEnemy = false;
 
-        while (projectileIterator.hasNext()) {
-            Projectile projectile = projectileIterator.next();
-            boolean hitEnemy = false;
-
-            for (Enemy enemy : enemies) {
-                if (!enemy.isDead() && enemy.checkCollision(projectile)) {
-                    enemy.takeDamage(1);
-                    hitEnemy = true;
-                    break;
+                for (Enemy enemy : enemies) {
+                    if (!enemy.isDead() && enemy.checkCollision(projectile)) {
+                        enemy.takeDamage(1);
+                        hitEnemy = true;
+                        break;
+                    }
                 }
-            }
 
-            if (hitEnemy) {
-                projectileIterator.remove();
+                if (hitEnemy) {
+                    projectileIterator.remove();
+                }
             }
         }
     }
