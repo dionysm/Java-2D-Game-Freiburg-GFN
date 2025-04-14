@@ -61,19 +61,19 @@ public class Player {
     public void update(float delta) {
         isMoving = false;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
             y += speed * delta;
             currentAnimation = walkUp;
             isMoving = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+        } else if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             y -= speed * delta;
             currentAnimation = walkDown;
             isMoving = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+        } else if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             x -= speed * delta;
             currentAnimation = walkLeft;
             isMoving = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+        } else if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             x += speed * delta;
             currentAnimation = walkRight;
             isMoving = true;
