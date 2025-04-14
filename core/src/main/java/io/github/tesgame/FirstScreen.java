@@ -11,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.Texture;
 
+
+// TODO: CLEANUP IMPORTS
 public class FirstScreen extends InputAdapter implements Screen {
     SpriteBatch batch;
     Player player;
