@@ -4,7 +4,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
+
 
 public class Map {
     private static final int SPRITESHEET_COLS = 20;
@@ -14,6 +17,8 @@ public class Map {
     private static final int INITIAL_WIDTH = 64;
     private static final int INITIAL_HEIGHT = 36;
 
+    // Baueme
+    private final List<Vector2> treePositions = new ArrayList<>();
     private Texture spriteSheet;
     private TextureRegion[][] tiles;
     private TextureRegion[][] mapTiles;
@@ -25,7 +30,10 @@ public class Map {
 
     private final int[] allowedTileCols = {0, 1, 2}; // nur diese vier Spalten benutzen
     private final int[] allowedTileRows = {2,3,4,5}; // nur die dritte Zeile (Gras, dreck wasser)
-
+    private final int[][] Tree = {
+            {0},  //Spalte
+            {0, 1} //Zeile
+    };
     public Map() {
         spriteSheet = new Texture("sprites/environment.png");
 
@@ -42,18 +50,29 @@ public class Map {
 
     private void generateMap() {
         mapTiles = new TextureRegion[mapHeight][mapWidth];
+        treePositions.clear(); // wichtig, falls neu generiert wird
+
         for (int y = 0; y < mapHeight; y++) {
             for (int x = 0; x < mapWidth; x++) {
+                // Platz für Baum reservieren?
+                boolean placeTree = ThreadLocalRandom.current().nextDouble() < 0.02; // z.B. 2% Wahrscheinlichkeit
+
+                // Nur platzieren, wenn noch Platz nach oben ist
+                if (placeTree && y < mapHeight - 1) {
+                    treePositions.add(new Vector2(x, y));
+                    // Boden unter dem Baum bleibt gleich
+                }
+
+                // Boden-Kachel setzen
                 int indexCol = ThreadLocalRandom.current().nextInt(allowedTileCols.length);
                 int indexRow = ThreadLocalRandom.current().nextInt(allowedTileRows.length);
                 int tileCol = allowedTileCols[indexCol];
                 int tileRow = allowedTileRows[indexRow];
-               // System.out.println("Ergebnis Random: " + index);
-
                 mapTiles[y][x] = tiles[tileRow][tileCol];
             }
         }
     }
+
     public void draw(SpriteBatch batch) {
         for (int y = 0; y < mapHeight; y++) {
             for (int x = 0; x < mapWidth; x++) {
@@ -61,7 +80,18 @@ public class Map {
             }
         }
     }
+    public void drawTrees(SpriteBatch batch) {
+        for (Vector2 pos : treePositions) {
+            int x = (int) pos.x;
+            int y = (int) pos.y;
 
+            // Untere Kachel (Stamm) auf y
+            batch.draw(tiles[1][0], (x - offsetX) * TILE_WIDTH, (y - offsetY) * TILE_HEIGHT);
+
+            // Obere Kachel (Krone) auf y+1
+            batch.draw(tiles[0][0], (x - offsetX) * TILE_WIDTH, ((y + 1) - offsetY) * TILE_HEIGHT);
+        }
+    }
     public void dispose() {
         // Dispose of the sprite sheet texture to prevent memory leaks
         if (spriteSheet != null) {

@@ -49,8 +49,9 @@ public class FirstScreen extends InputAdapter implements Screen {
         // Draw everything
         batch.begin();
 
-        map.draw(batch);
-        player.draw(batch);
+        map.draw(batch);          // zuerst Boden
+        map.drawTrees(batch);     // dann Bäume
+        player.draw(batch);       // dann Spieler
         map.expandMapIfNeeded(player.getPosition());
         enemyManager.draw(batch); // Added this line to draw enemies
         batch.end();
