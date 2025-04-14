@@ -17,6 +17,9 @@ public class FirstScreen  extends InputAdapter implements Screen {
     private OrthographicCamera camera;
     private final Main game;
     Stage stage;
+
+// TODO: CLEANUP IMPORTS
+public class FirstScreen extends InputAdapter implements Screen {
     SpriteBatch batch;
     Texture player;
     float Speed = 50.0f;
@@ -62,6 +65,10 @@ public class FirstScreen  extends InputAdapter implements Screen {
 
         }
 
+        ScreenUtils.clear(0, 0, 0, 0);
+        player.update(delta);
+        batch.begin();
+        player.draw(batch);
         batch.end();
     }
 
