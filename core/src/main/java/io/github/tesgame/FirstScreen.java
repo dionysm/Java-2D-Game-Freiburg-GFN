@@ -1,15 +1,9 @@
 package io.github.tesgame;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class FirstScreen extends InputAdapter implements Screen {
     SpriteBatch batch;
@@ -36,10 +30,11 @@ public class FirstScreen extends InputAdapter implements Screen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 198, 10, 0);
-        player.update(delta);
+
+        // Pass camera controller to player for coordinate conversion
+        player.update(delta, cameraController);
+
         cameraController.update(player.getPosition(), delta);
-
-
         enemyManager.update(delta, player.getPosition(), player.getWeapon());
 
         // Set batch to use camera
@@ -49,9 +44,9 @@ public class FirstScreen extends InputAdapter implements Screen {
         batch.begin();
         map.draw(batch);
         player.draw(batch);
+        enemyManager.draw(batch); // Added this line to draw enemies
         batch.end();
     }
-
 
     @Override
     public void resize(int width, int height) {
@@ -71,6 +66,7 @@ public class FirstScreen extends InputAdapter implements Screen {
     public void dispose() {
         batch.dispose();
         player.dispose();
+        enemyManager.dispose();
+        map.dispose();
     }
-
 }

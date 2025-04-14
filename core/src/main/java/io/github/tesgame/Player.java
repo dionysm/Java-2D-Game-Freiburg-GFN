@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 public class Player {
-
     private float x, y;
     private float speed = 100f;
     private static final int FRAME_COLS = 4;
@@ -18,6 +17,7 @@ public class Player {
     private Animation<TextureRegion> walkDown, walkLeft, walkRight, walkUp;
     private Animation<TextureRegion> currentAnimation;
     private boolean isMoving;
+    private float width, height;
 
     private Weapon weapon;
 
@@ -27,6 +27,10 @@ public class Player {
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
             spriteSheet.getWidth() / FRAME_COLS,
             spriteSheet.getHeight() / FRAME_ROWS);
+
+        // Store dimensions
+        width = tmp[0][0].getRegionWidth();
+        height = tmp[0][0].getRegionHeight();
 
         // Extracting frames for each direction
         TextureRegion[] downFrames = new TextureRegion[FRAME_ROWS];
@@ -55,7 +59,7 @@ public class Player {
         weapon = new Weapon(); // Initialize weapon
     }
 
-    public void update(float delta) {
+    public void update(float delta, CameraController cameraController) {
         isMoving = false;
         Vector2 direction = new Vector2(0, 0); // Default direction
 
@@ -93,10 +97,15 @@ public class Player {
             stateTime = 0f;
         }
 
-        // Update weapon with player position and mouse crosshair position
-        Vector2 mouse = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-        mouse.y = Gdx.graphics.getHeight() - mouse.y; // Invert Y
-        weapon.update(delta, x + 32, y + 32, mouse); // Offset to player center
+        // Get mouse position in screen coordinates
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.input.getY();
+
+        // Convert to world coordinates
+        Vector2 worldMouse = cameraController.screenToWorld(mouseX, mouseY);
+
+        // Update weapon with world coordinates
+        weapon.update(delta, x + width/2, y + height/2, worldMouse);
     }
 
     public void draw(SpriteBatch batch) {
@@ -112,7 +121,15 @@ public class Player {
     }
 
     public Vector2 getPosition() {
-        return new Vector2(x, y);
+        return new Vector2(x + width/2, y + height/2);
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
     }
 
     public Weapon getWeapon() {

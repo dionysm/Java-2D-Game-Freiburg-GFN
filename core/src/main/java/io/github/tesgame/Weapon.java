@@ -3,10 +3,9 @@ package io.github.tesgame;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.Iterator;
-import com.badlogic.gdx.math.Vector2;
-
 
 public class Weapon {
     private ArrayList<Projectile> projectiles;
@@ -15,11 +14,11 @@ public class Weapon {
         projectiles = new ArrayList<>();
     }
 
-    public void update(float delta, float playerX, float playerY, Vector2 crosshairPosition) {
+    public void update(float delta, float playerX, float playerY, Vector2 targetPosition) {
         // Check if Space key is pressed to fire a projectile
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            // Create a new projectile pointing towards the crosshair
-            projectiles.add(new Projectile(playerX, playerY, crosshairPosition.x, crosshairPosition.y));
+            // Create a new projectile pointing towards the target position in world coordinates
+            projectiles.add(new Projectile(playerX, playerY, targetPosition.x, targetPosition.y));
         }
 
         // Update all projectiles
@@ -29,8 +28,8 @@ public class Weapon {
             p.update(delta);
 
             // Remove projectiles that are far off-screen
-            if (p.getPosition().x < -500 || p.getPosition().x > Gdx.graphics.getWidth() + 500 ||
-                p.getPosition().y < -500 || p.getPosition().y > Gdx.graphics.getHeight() + 500) {
+            if (p.getPosition().x < playerX - 1000 || p.getPosition().x > playerX + 1000 ||
+                p.getPosition().y < playerY - 1000 || p.getPosition().y > playerY + 1000) {
                 iterator.remove();
             }
         }

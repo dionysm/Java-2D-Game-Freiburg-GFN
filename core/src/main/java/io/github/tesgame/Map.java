@@ -1,17 +1,8 @@
 package io.github.tesgame;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
-import org.w3c.dom.ls.LSOutput;
-
 
 public class Map {
     private static final int SPRITESHEET_COLS = 20;
@@ -52,6 +43,7 @@ public class Map {
             }
         }
     }
+
     public void draw(SpriteBatch batch) {
         for (int y = 0; y < mapHeight; y++) {
             for (int x = 0; x < mapWidth; x++) {
@@ -60,4 +52,10 @@ public class Map {
         }
     }
 
+    public void dispose() {
+        // Dispose of the sprite sheet texture to prevent memory leaks
+        if (spriteSheet != null) {
+            spriteSheet.dispose();
+        }
+    }
 }
