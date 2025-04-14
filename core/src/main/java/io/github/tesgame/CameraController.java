@@ -2,39 +2,32 @@ package io.github.tesgame;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class CameraController {
     private OrthographicCamera camera;
-    private float lerpSpeed = 5f; // Speed of camera movement
-    private float viewportWidth;
-    private float viewportHeight;
 
     public CameraController(float width, float height) {
         // Initialize the camera
         camera = new OrthographicCamera();
-        viewportWidth = width;
-        viewportHeight = height;
-        camera.setToOrtho(false, viewportWidth, viewportHeight);  // Set the camera's viewport size
+        camera.setToOrtho(false, width, height);
+        camera.update();
     }
 
     public void update(Vector2 playerPosition, float delta) {
-        // Calculate target position (center the player)
-        float targetX = playerPosition.x + viewportWidth / 2;
-        float targetY = playerPosition.y + viewportHeight / 2;
-
-        // Smoothly interpolate camera movement
-        camera.position.x += (targetX - camera.position.x) * lerpSpeed * delta;
-        camera.position.y += (targetY - camera.position.y) * lerpSpeed * delta;
-
-        // Optional: clamp the camera's position to certain boundaries
-        camera.position.x = Math.max(viewportWidth / 2, Math.min(camera.position.x, 1600 - viewportWidth / 2));
-        camera.position.y = Math.max(viewportHeight / 2, Math.min(camera.position.y, 1200 - viewportHeight / 2));
-
-        // Update the camera
+        // Directly follow player without lerp effect
+        camera.position.x = playerPosition.x;
+        camera.position.y = playerPosition.y;
         camera.update();
     }
 
     public OrthographicCamera getCamera() {
         return camera;
+    }
+
+    // Method to convert screen to world coordinates
+    public Vector2 screenToWorld(float screenX, float screenY) {
+        Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+        return new Vector2(worldCoords.x, worldCoords.y);
     }
 }

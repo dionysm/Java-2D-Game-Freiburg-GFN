@@ -10,7 +10,7 @@ public class Projectile {
     private float speed = 400f;
     private Texture texture;
     private float width, height;
-    private float scale = 0.5f; // Add scale factor (0.5 = half size)
+    private float scale = 0.5f; // Scale factor for the sprite size
 
     public Projectile(float x, float y, float targetX, float targetY) {
         position = new Vector2(x, y);

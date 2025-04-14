@@ -9,20 +9,21 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 public class Player {
+
     private float x, y;
     private float speed = 100f;
     private static final int FRAME_COLS = 4;
-    private static final int FRAME_ROWS = 4;
+    private static final int FRAME_ROWS = 7;
     private Texture spriteSheet;
     private float stateTime;
     private Animation<TextureRegion> walkDown, walkLeft, walkRight, walkUp;
     private Animation<TextureRegion> currentAnimation;
     private boolean isMoving;
 
-    private Weapon weapon;  // Weapon instance
+    private Weapon weapon;
 
     public Player() {
-        spriteSheet = new Texture("sprites/Walk.png");
+        spriteSheet = new Texture("sprites/SpriteSheet.png");
 
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
             spriteSheet.getWidth() / FRAME_COLS,
@@ -41,10 +42,10 @@ public class Player {
             rightFrames[i] = tmp[i][3]; // Column 3 = right
         }
 
-        walkDown = new Animation<TextureRegion>(0.1f, downFrames);
-        walkLeft = new Animation<TextureRegion>(0.1f, leftFrames);
-        walkRight = new Animation<TextureRegion>(0.1f, rightFrames);
-        walkUp = new Animation<TextureRegion>(0.1f, upFrames);
+        walkDown = new Animation<>(0.1f, downFrames);
+        walkLeft = new Animation<>(0.1f, leftFrames);
+        walkRight = new Animation<>(0.1f, rightFrames);
+        walkUp = new Animation<>(0.1f, upFrames);
 
         currentAnimation = walkDown;
         stateTime = 0f;
@@ -52,14 +53,13 @@ public class Player {
         x = 280;
         y = 200;
 
-        weapon = new Weapon();  // Initialize weapon
+        weapon = new Weapon(); // Initialize weapon
     }
 
     public void update(float delta) {
         isMoving = false;
-        Vector2 direction = new Vector2(0, 0); // Default direction is (0, 0)
+        Vector2 direction = new Vector2(0, 0); // Default direction
 
-        // Movement logic (normalizing diagonal movement)
         if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
             direction.y = 1;
             currentAnimation = walkUp;
@@ -81,53 +81,42 @@ public class Player {
             isMoving = true;
         }
 
-        // Normalize diagonal movement
         if (direction.x != 0 && direction.y != 0) {
             direction.nor();
         }
 
-        // Update position based on normalized direction
         x += direction.x * speed * delta;
         y += direction.y * speed * delta;
 
-        // Update animation state
         if (isMoving) {
             stateTime += delta;
         } else {
             stateTime = 0f;
         }
 
-        // Update weapon (handles shooting)
-        weapon.update(delta, x + 32, y + 32);  // Offset to center of player sprite
+        // Update weapon with player position and mouse crosshair position
+        Vector2 mouse = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+        mouse.y = Gdx.graphics.getHeight() - mouse.y; // Invert Y
+        weapon.update(delta, x + 32, y + 32, mouse); // Offset to player center
     }
 
     public void draw(SpriteBatch batch) {
-        // Draw player animation
         TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, x, y);
 
-        // Draw weapon projectiles
         weapon.draw(batch);
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public Vector2 getPosition() {
-        return new Vector2(x + 32, y + 32);  // Return center position
-    }
-
-    public Weapon getWeapon() {
-        return weapon;
     }
 
     public void dispose() {
         spriteSheet.dispose();
         weapon.dispose();
+    }
+
+    public Vector2 getPosition() {
+        return new Vector2(x, y);
+    }
+
+    public Weapon getWeapon() {
+        return weapon;
     }
 }
