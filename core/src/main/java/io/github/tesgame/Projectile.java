@@ -1,8 +1,8 @@
 package io.github.tesgame;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class Projectile {
@@ -35,11 +35,12 @@ public class Projectile {
         batch.begin();  // Restart SpriteBatch after drawing the shape
     }
 
-    public void dispose() {
-        shapeRenderer.dispose();
-    }
-
+    // Add getPosition() method to return the position of the projectile
     public Vector2 getPosition() {
         return position;
+    }
+
+    public void dispose() {
+        shapeRenderer.dispose();
     }
 }
