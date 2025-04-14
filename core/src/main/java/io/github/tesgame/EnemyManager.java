@@ -22,6 +22,7 @@ public class EnemyManager {
             float y = MathUtils.random(100, 500);
             enemies.add(new Enemy(x, y));
         }
+
     }
 
     public void update(float delta, Vector2 playerPosition, Weapon playerWeapon) {

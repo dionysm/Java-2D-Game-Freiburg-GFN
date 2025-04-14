@@ -1,9 +1,11 @@
 package io.github.tesgame;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -11,14 +13,21 @@ public class Enemy {
     private Vector2 position;
     private Vector2 velocity;
     private float speed = 40f; // Slower than player
-    private float health = 100;
+    private int maxHealth = 5;
+    private int health = maxHealth;
     private boolean isDead = false;
+    private ShapeRenderer shapeRenderer;
 
     // For animation
     private Texture spriteSheet;
     private Animation<TextureRegion> animation;
     private float stateTime = 0;
     private float width, height;
+
+    // Health bar dimensions
+    private float healthBarWidth = 40;
+    private float healthBarHeight = 5;
+    private float healthBarOffsetY = 5; // Distance above enemy
 
     // Animation constants based on the sprite sheet
     private static final int FRAME_COLS = 4;
@@ -27,6 +36,7 @@ public class Enemy {
     public Enemy(float x, float y) {
         position = new Vector2(x, y);
         velocity = new Vector2(0, 0);
+        shapeRenderer = new ShapeRenderer();
 
         // Load enemy sprite sheet
         spriteSheet = new Texture("sprites/Skeleton-Walk.png");
@@ -76,6 +86,45 @@ public class Enemy {
 
         // Draw centered at position
         batch.draw(currentFrame, position.x - width/2, position.y - height/2);
+
+        // Draw the health bar
+        drawHealthBar(batch);
+    }
+
+    private void drawHealthBar(SpriteBatch batch) {
+        // We need to end the SpriteBatch before using ShapeRenderer
+        batch.end();
+
+        // Calculate health bar position
+        float barX = position.x - healthBarWidth / 2;
+        float barY = position.y + height / 2 + healthBarOffsetY;
+
+        // Set projection matrix to match batch
+        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+
+        // Draw health bar background (gray)
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.DARK_GRAY);
+        shapeRenderer.rect(barX, barY, healthBarWidth, healthBarHeight);
+
+        // Calculate current health width
+        float currentHealthWidth = (float)health / maxHealth * healthBarWidth;
+
+        // Set color based on health level
+        if (health > 3) {
+            shapeRenderer.setColor(Color.GREEN);
+        } else if (health > 1) {
+            shapeRenderer.setColor(Color.YELLOW);
+        } else {
+            shapeRenderer.setColor(Color.RED);
+        }
+
+        // Draw current health
+        shapeRenderer.rect(barX, barY, currentHealthWidth, healthBarHeight);
+        shapeRenderer.end();
+
+        // Resume the SpriteBatch
+        batch.begin();
     }
 
     public boolean checkCollision(Projectile projectile) {
@@ -95,7 +144,7 @@ public class Enemy {
     }
 
     public void takeDamage(float damage) {
-        health -= damage;
+        health -= 1; // Each hit takes 1 health point
         if (health <= 0) {
             isDead = true;
         }
@@ -111,5 +160,6 @@ public class Enemy {
 
     public void dispose() {
         spriteSheet.dispose();
+        shapeRenderer.dispose();
     }
 }
