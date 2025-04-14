@@ -9,23 +9,21 @@ import java.util.Iterator;
 public class EnemyManager {
     private ArrayList<Enemy> enemies;
     private float spawnTimer = 0;
-    private float spawnRate = 2.0f; // Seconds between spawns
-    private float spawnDistance = 300; // Distance from player to spawn enemies
-    private int maxEnemies = 50; // Maximum number of enemies at once
+    private float spawnRate = 2.0f;
+    private float spawnDistance = 300;
+    private int maxEnemies = 50;
 
     public EnemyManager() {
         enemies = new ArrayList<>();
         // Spawn initial enemies
         for (int i = 0; i < 5; i++) {
-            // Spawn at random positions on screen
             float x = MathUtils.random(100, 700);
             float y = MathUtils.random(100, 500);
-            enemies.add(new Enemy(x, y));
+            spawnRandomEnemy(x, y);
         }
-
     }
 
-    public void update(float delta, Vector2 playerPosition, Weapon playerWeapon) {
+    public void update(float delta, Vector2 playerPosition, Weapon playerWeapon, Player player) {
         // Update spawn timer
         spawnTimer += delta;
 
@@ -39,10 +37,11 @@ public class EnemyManager {
         Iterator<Enemy> iterator = enemies.iterator();
         while (iterator.hasNext()) {
             Enemy enemy = iterator.next();
-            enemy.update(delta, playerPosition);
+            enemy.update(delta, playerPosition, player);
 
-            // Remove dead enemies
+            // Remove dead enemies and heal player
             if (enemy.isDead()) {
+                player.heal(1);
                 iterator.remove();
             }
         }
@@ -57,33 +56,47 @@ public class EnemyManager {
 
             for (Enemy enemy : enemies) {
                 if (!enemy.isDead() && enemy.checkCollision(projectile)) {
-                    enemy.takeDamage(20); // Damage amount
+                    enemy.takeDamage(1);
                     hitEnemy = true;
-                    break; // A projectile can only hit one enemy
+                    break;
                 }
             }
 
             if (hitEnemy) {
-                projectileIterator.remove(); // Only remove if it hit an enemy
+                projectileIterator.remove();
             }
         }
     }
 
     private void spawnEnemy(Vector2 playerPosition) {
-        // Generate a random angle
         float angle = MathUtils.random(360f);
         float radians = (float) Math.toRadians(angle);
 
-        // Calculate spawn position at the given distance and angle from player
         float spawnX = playerPosition.x + (float) Math.cos(radians) * spawnDistance;
         float spawnY = playerPosition.y + (float) Math.sin(radians) * spawnDistance;
 
-        // Debug output
-        System.out.println("Spawning enemy at: " + spawnX + ", " + spawnY);
+        spawnRandomEnemy(spawnX, spawnY);
+    }
 
-        // Create and add the enemy
-        enemies.add(new Enemy(spawnX, spawnY));
-        System.out.println("Total enemies: " + enemies.size());
+    private void spawnRandomEnemy(float x, float y) {
+        int enemyType = MathUtils.random(2);
+
+        Enemy enemy;
+        switch (enemyType) {
+            case 0:
+                enemy = new SkeletonEnemy(x, y);
+                break;
+            case 1:
+                enemy = new GoblinEnemy(x, y);
+                break;
+            case 2:
+                enemy = new OrcEnemy(x, y);
+                break;
+            default:
+                enemy = new SkeletonEnemy(x, y);
+        }
+
+        enemies.add(enemy);
     }
 
     public void draw(SpriteBatch batch) {

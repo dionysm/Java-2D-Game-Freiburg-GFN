@@ -1,7 +1,10 @@
 package io.github.tesgame;
+
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -11,24 +14,40 @@ public class Player {
     private float x, y;
     private float speed = 100f;
     private static final int FRAME_COLS = 4;
-    private static final int FRAME_ROWS = 4;
+    private static final int FRAME_ROWS = 7;
     private Texture spriteSheet;
+    private Texture whitePixel;
     private float stateTime;
     private Animation<TextureRegion> walkDown, walkLeft, walkRight, walkUp;
     private Animation<TextureRegion> currentAnimation;
     private boolean isMoving;
     private float width, height;
 
+    // Health system
+    private int health = 10;
+    private int maxHealth = 10;
+    private float invincibilityTimer = 0;
+    private float invincibilityDuration = 0.5f;
+    private boolean isInvincible = false;
+
     private Weapon weapon;
+    private HeartDisplay heartDisplay;
 
     public Player() {
-        spriteSheet = new Texture("sprites/Walk.png");
+        spriteSheet = new Texture("sprites/SpriteSheet.png");
+
+        // Create a 1x1 white pixel for UI elements if needed
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+        whitePixel = new Texture(pixmap);
+        pixmap.dispose();
 
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
             spriteSheet.getWidth() / FRAME_COLS,
             spriteSheet.getHeight() / FRAME_ROWS);
 
-        // Store dimensions
+        // Store the dimensions of a single frame
         width = tmp[0][0].getRegionWidth();
         height = tmp[0][0].getRegionHeight();
 
@@ -56,7 +75,8 @@ public class Player {
         x = 280;
         y = 200;
 
-        weapon = new Weapon(); // Initialize weapon
+        weapon = new Weapon();
+        heartDisplay = new HeartDisplay();
     }
 
     public void update(float delta, CameraController cameraController) {
@@ -97,6 +117,14 @@ public class Player {
             stateTime = 0f;
         }
 
+        // Update invincibility
+        if (isInvincible) {
+            invincibilityTimer += delta;
+            if (invincibilityTimer >= invincibilityDuration) {
+                isInvincible = false;
+            }
+        }
+
         // Get mouse position in screen coordinates
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.input.getY();
@@ -109,19 +137,60 @@ public class Player {
     }
 
     public void draw(SpriteBatch batch) {
+        // Draw player
         TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
+
+        // Flash if invincible
+        if (isInvincible && ((int)(invincibilityTimer * 10) % 2 == 0)) {
+            batch.setColor(1, 1, 1, 0.5f); // Semi-transparent when flashing
+        }
+
         batch.draw(currentFrame, x, y);
+        batch.setColor(1, 1, 1, 1); // Reset color
 
         weapon.draw(batch);
+
+        // Draw heart display
+        heartDisplay.draw(batch, health);
+    }
+
+    public void takeDamage(int damage) {
+        if (isInvincible) return;
+
+        health -= damage;
+        isInvincible = true;
+        invincibilityTimer = 0;
+
+        // Check for game over
+        if (health <= 0) {
+            // Handle player death
+            System.out.println("Player died!");
+            health = 0; // Prevent negative health
+        }
+    }
+
+    public void heal(int amount) {
+        health = Math.min(health + amount, maxHealth);
+        System.out.println("Player healed! Health: " + health);
     }
 
     public void dispose() {
         spriteSheet.dispose();
+        whitePixel.dispose();
         weapon.dispose();
+        heartDisplay.dispose();
     }
 
     public Vector2 getPosition() {
         return new Vector2(x + width/2, y + height/2);
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
     }
 
     public float getWidth() {
@@ -130,6 +199,10 @@ public class Player {
 
     public float getHeight() {
         return height;
+    }
+
+    public int getHealth() {
+        return health;
     }
 
     public Weapon getWeapon() {

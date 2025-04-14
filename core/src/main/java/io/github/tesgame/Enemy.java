@@ -9,76 +9,90 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-//TODO: Make Enemies spawn dynamically around the player not around a fixed val
-// TODO: erben von Player Klasse ??
+public abstract class Enemy {
+    protected Vector2 position;
+    protected Vector2 velocity;
+    protected float speed;
+    protected int maxHealth;
+    protected int health;
+    protected boolean isDead = false;
+    protected ShapeRenderer shapeRenderer;
 
-public class Enemy {
-    private Vector2 position;
-    private Vector2 velocity;
-    private float speed = 40f; // Slower than player
-    private int maxHealth = 5;
-    private int health = maxHealth;
-    private boolean isDead = false;
-    private ShapeRenderer shapeRenderer;
+    // Attack properties
+    protected boolean isRangedAttacker = false;
+    protected boolean isMeleeAttacker = false;
+    protected float attackRange;
+    protected float attackCooldown;
+    protected float attackTimer = 0f;
+    protected boolean isAttacking = false;
 
     // For animation
-    private Texture spriteSheet;
-    private Animation<TextureRegion> animation;
-    private float stateTime = 0;
-    private float width, height;
+    protected Texture spriteSheet;
+    protected Animation<TextureRegion> animation;
+    protected float stateTime = 0;
+    protected float width, height;
 
     // Health bar dimensions
-    private float healthBarWidth = 40;
-    private float healthBarHeight = 5;
-    private float healthBarOffsetY = 5; // Distance above enemy
+    protected float healthBarWidth = 40;
+    protected float healthBarHeight = 5;
+    protected float healthBarOffsetY = 5; // Distance above enemy
 
-    // Animation constants based on the sprite sheet
-    private static final int FRAME_COLS = 4;
-    private static final int FRAME_ROWS = 4;
-
-    public Enemy(float x, float y) {
+    public Enemy(float x, float y, float speed, int maxHealth) {
         position = new Vector2(x, y);
         velocity = new Vector2(0, 0);
+        this.speed = speed;
+        this.maxHealth = maxHealth;
+        this.health = maxHealth;
         shapeRenderer = new ShapeRenderer();
 
-        // Load enemy sprite sheet
-        spriteSheet = new Texture("sprites/Skeleton-Walk.png");
-
-        // Set up animation with the 4x4 sprite sheet
-        TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
-            spriteSheet.getWidth() / FRAME_COLS,
-            spriteSheet.getHeight() / FRAME_ROWS);
-
-        // Create animation frames (using the first row for walking animation)
-        TextureRegion[] frames = new TextureRegion[FRAME_COLS];
-        for (int i = 0; i < FRAME_COLS; i++) {
-            frames[i] = tmp[0][i]; // Using first row (index 0)
-        }
-
-        animation = new Animation<>(0.15f, frames);
-
-        // Set dimensions - scale down if needed
-        width = tmp[0][0].getRegionWidth();
-        height = tmp[0][0].getRegionHeight();
+        // Load sprites and set up animations (implemented by subclasses)
+        loadSprites();
     }
 
-    public void update(float delta, Vector2 playerPosition) {
+    // Abstract method to be implemented by each enemy type
+    protected abstract void loadSprites();
+
+    // Abstract attack method for enemy types to implement
+    protected abstract void performAttack(Player player);
+
+    public void update(float delta, Vector2 playerPosition, Player player) {
         if (isDead) return;
 
         // Update animation time
         stateTime += delta;
 
-        // Move toward player
-        Vector2 direction = new Vector2(
-            playerPosition.x - position.x,
-            playerPosition.y - position.y
-        ).nor();
+        // Update attack timer
+        attackTimer += delta;
 
-        // Set velocity based on direction and speed
-        velocity.set(direction.x * speed, direction.y * speed);
+        // Calculate distance to player
+        float distanceToPlayer = position.dst(playerPosition);
 
-        // Update position
-        position.add(velocity.x * delta, velocity.y * delta);
+        // Attack logic
+        if (distanceToPlayer <= attackRange && attackTimer >= attackCooldown) {
+            // Start attack
+            isAttacking = true;
+            attackTimer = 0;
+            stateTime = 0; // Reset animation time for attack animation
+
+            // Perform the attack based on enemy type
+            performAttack(player);
+        }
+
+        // Normal movement logic if not attacking or if ranged attacker (can move while attacking)
+        if (!isAttacking || isRangedAttacker) {
+            Vector2 direction = new Vector2(
+                playerPosition.x - position.x,
+                playerPosition.y - position.y
+            ).nor();
+
+            velocity.set(direction.x * speed, direction.y * speed);
+            position.add(velocity.x * delta, velocity.y * delta);
+        }
+
+        // Reset attack state after a short time (for melee attackers)
+        if (isAttacking && isMeleeAttacker && stateTime > 0.5f) {
+            isAttacking = false;
+        }
     }
 
     public void draw(SpriteBatch batch) {
@@ -114,9 +128,9 @@ public class Enemy {
         float currentHealthWidth = (float)health / maxHealth * healthBarWidth;
 
         // Set color based on health level
-        if (health > 3) {
+        if (health > (int)(maxHealth * 0.6f)) {
             shapeRenderer.setColor(Color.GREEN);
-        } else if (health > 1) {
+        } else if (health > (int)(maxHealth * 0.2f)) {
             shapeRenderer.setColor(Color.YELLOW);
         } else {
             shapeRenderer.setColor(Color.RED);
@@ -146,8 +160,8 @@ public class Enemy {
         return enemyRect.overlaps(projectileRect);
     }
 
-    public void takeDamage(float damage) {
-        health -= 1; // Each hit takes 1 health point
+    public void takeDamage(int damage) {
+        health -= damage;
         if (health <= 0) {
             isDead = true;
         }
