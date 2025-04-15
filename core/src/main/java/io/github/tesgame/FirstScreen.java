@@ -1,82 +1,67 @@
 package io.github.tesgame;
+
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class FirstScreen  extends InputAdapter implements Screen {
-    private ShapeRenderer shapeRenderer;
-    private OrthographicCamera camera;
-    private final Main game;
-    Stage stage;
-
-// TODO: CLEANUP IMPORTS
 public class FirstScreen extends InputAdapter implements Screen {
     SpriteBatch batch;
-    Texture player;
-    float Speed = 50.0f;
-    float playerx = 280;
-    float playery = 200;
+    Player player;
+    CameraController cameraController;
+    EnemyManager enemyManager;
+    Map map;
+    ScoreDisplay scoreDisplay;
+    Sound bgMusic;
 
-    public FirstScreen(Main game) {
-        this.game = game;
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
-    }
     @Override
     public void show() {
-        player = new Texture("sprites/SpriteSheet.png");
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
+        bgMusic = Gdx.audio.newSound(Gdx.files.internal("sfx/FinalArea.ogg"));
+        bgMusic.play();
         batch = new SpriteBatch();
+        player = new Player();
+        cameraController = new CameraController(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        scoreDisplay = new ScoreDisplay();
+        enemyManager = new EnemyManager(scoreDisplay); // Pass scoreDisplay to EnemyManager
+        map = new Map();
+
+        // Set up input processor
+        Gdx.input.setInputProcessor(this);
+
+        // Debug message to confirm initialization
+        System.out.println("Game initialization complete");
     }
 
     @Override
     public void render(float delta) {
-       Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-       ScreenUtils.clear(0, 0, 0, 0);
-       camera.update();
-       batch.setProjectionMatrix(camera.combined);
-       batch.begin();
-       stage.draw();
-       batch.draw(player, playerx, playery);
-       if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
-           playery += Gdx.graphics.getDeltaTime() * Speed;
+        ScreenUtils.clear(0, 198, 10, 0);
 
-       }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
-            playery -= Gdx.graphics.getDeltaTime() * Speed;
+        // Pass camera controller to player for coordinate conversion
+        player.update(delta, cameraController);
 
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-            playerx -= Gdx.graphics.getDeltaTime() * Speed;
+        cameraController.update(player.getPosition(), delta);
+        enemyManager.update(delta, player.getPosition(), player.getWeapon(), player);
 
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
-            playerx += Gdx.graphics.getDeltaTime() * Speed;
+        // Set batch to use camera
+        batch.setProjectionMatrix(cameraController.getCamera().combined);
 
-        }
-
-        ScreenUtils.clear(0, 0, 0, 0);
-        player.update(delta);
+        // Draw game objects
         batch.begin();
-        player.draw(batch);
+        map.draw(batch);          // zuerst Boden
+        map.drawTrees(batch);     // dann Bäume
+        player.draw(batch);       // dann Spieler
+        map.expandMapIfNeeded(player.getPosition());
+        enemyManager.draw(batch);
         batch.end();
+
+        // Draw HUD (score)
+        scoreDisplay.draw(batch);
     }
 
     @Override
-    public void resize(int width, int height) {
-        // Resize logic (optional)
-        camera.setToOrtho(false, width, height);
-    }
+    public void resize(int width, int height) {}
 
     @Override
     public void pause() {}
@@ -89,6 +74,11 @@ public class FirstScreen extends InputAdapter implements Screen {
 
     @Override
     public void dispose() {
-        shapeRenderer.dispose();
+        batch.dispose();
+        player.dispose();
+        enemyManager.dispose();
+        map.dispose();
+        scoreDisplay.dispose();
+        bgMusic.dispose();
     }
 }
