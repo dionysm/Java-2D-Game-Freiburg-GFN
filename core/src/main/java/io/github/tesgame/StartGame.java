@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class FirstScreen extends InputAdapter implements Screen {
+public class StartGame extends InputAdapter implements Screen {
     SpriteBatch batch;
     Player player;
     CameraController cameraController;

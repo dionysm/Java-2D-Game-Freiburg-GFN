@@ -149,7 +149,7 @@ public class GameOverScreen extends InputAdapter implements Screen {
 
     private void restartGame() {
         // Zurück zum ersten Screen
-        game.setScreen(new FirstScreen());
+        game.setScreen(new StartGame());
         dispose();
     }
 
