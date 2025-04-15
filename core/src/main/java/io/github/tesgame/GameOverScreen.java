@@ -21,7 +21,7 @@ public class GameOverScreen extends InputAdapter implements Screen {
     private final Main game; // Annahme: Deine Hauptklasse heißt TesGame
 
     private final String message = "GAME OVER";
-    private final String restartMessage = "Drücke LEERTASTE zum Neustart";
+    private final String restartMessage = "Drücke LEERTASTE zum Hauptmenü";
     private GlyphLayout restartLayout;
 
     private final float padding = 20f;
@@ -149,7 +149,7 @@ public class GameOverScreen extends InputAdapter implements Screen {
 
     private void restartGame() {
         // Zurück zum ersten Screen
-        game.setScreen(new StartGame());
+        game.setScreen(new MainMenu(game));
         dispose();
     }
 
