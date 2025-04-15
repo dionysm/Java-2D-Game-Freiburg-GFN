@@ -3,6 +3,8 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.Game;
+import io.github.tesgame.highscore.HighscoreManager;
+import io.github.tesgame.highscore.HighscoreScreen;
 
 public class MainMenu implements Screen {
     Game game;
@@ -48,7 +50,7 @@ public class MainMenu implements Screen {
                                 game.setScreen(new StartGame(musicOn));
                                 break;
                             case 1:
-                                System.out.println("Highscore");
+                                game.setScreen(new HighscoreScreen(game)); // Highscore anzeigen
                                 break;
                             case 2:
                                 inSettings = true;
