@@ -6,6 +6,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class FirstScreen extends InputAdapter implements Screen {
     SpriteBatch batch;
@@ -15,6 +18,10 @@ public class FirstScreen extends InputAdapter implements Screen {
     Map map;
     ScoreDisplay scoreDisplay;
     Sound bgMusic;
+    private boolean gameOver = false;
+    private BitmapFont font;
+    private GlyphLayout glyphLayout;
+    private ShapeRenderer shapeRenderer;
 
     @Override
     public void show() {
@@ -36,6 +43,12 @@ public class FirstScreen extends InputAdapter implements Screen {
 
     @Override
     public void render(float delta) {
+
+        if(player.isDead() && !gameOver){
+            gameOver=true;
+            ((Main)Gdx.app.getApplicationListener()).setScreen(new GameOverScreen((Main)Gdx.app.getApplicationListener()));
+            return;
+        }
         ScreenUtils.clear(0, 198, 10, 0);
 
         // Pass camera controller to player for coordinate conversion
@@ -81,4 +94,5 @@ public class FirstScreen extends InputAdapter implements Screen {
         scoreDisplay.dispose();
         bgMusic.dispose();
     }
+
 }

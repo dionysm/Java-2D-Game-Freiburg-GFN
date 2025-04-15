@@ -33,7 +33,10 @@ public class Player {
     private Weapon weapon;
     private HeartDisplay heartDisplay;
 
-    public Player() {
+    // Game Over
+    private boolean isDead = false;
+
+        public Player() {
         spriteSheet = new Texture("sprites/chars/Walk.png");
 
         // Create a 1x1 white pixel for UI elements if needed
@@ -166,12 +169,17 @@ public class Player {
             // Handle player death
             System.out.println("Player died!");
             health = 0; // Prevent negative health
+            isDead = true;
         }
     }
 
     public void heal(int amount) {
         health = Math.min(health + amount, maxHealth);
         System.out.println("Player healed! Health: " + health);
+    }
+
+    public boolean isDead() {
+            return isDead;
     }
 
     public void dispose() {
