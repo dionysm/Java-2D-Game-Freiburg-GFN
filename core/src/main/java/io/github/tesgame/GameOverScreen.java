@@ -2,33 +2,34 @@ package io.github.tesgame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.audio.Sound;
 
-public class GameOverScreen extends InputAdapter implements Screen {
+public class GameOverScreen implements Screen {
 
+    private final Main game;
     private SpriteBatch batch;
-    private ShapeRenderer shapeRenderer;
     private BitmapFont font;
     private GlyphLayout glyphLayout;
-    private final Main game; // Annahme: Deine Hauptklasse heißt TesGame
-
-    private final String message = "GAME OVER";
-    private final String restartMessage = "Drücke LEERTASTE zum Hauptmenü";
-    private GlyphLayout restartLayout;
-
-    private final float padding = 20f;
-    private final float boxAlpha = 0.8f;
-
+    private Stage stage;
+    private TextButton restartButton;
+    private TextButton menuButton;
     private Sound gameOverSound;
     private boolean soundPlayed = false;
+    private final String message = "GAME OVER";
 
     public GameOverScreen(Main game) {
         this.game = game;
@@ -37,149 +38,147 @@ public class GameOverScreen extends InputAdapter implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        shapeRenderer = new ShapeRenderer();
 
+        // Schriftart initialisieren
         font = new BitmapFont();
-        font.getData().setScale(3); // Größere Schrift für GAME OVER
+        font.getData().setScale(4); // Sehr große Schrift für "GAME OVER"
+        glyphLayout = new GlyphLayout(font, message);
 
-        glyphLayout = new GlyphLayout();
-        glyphLayout.setText(font, message);
+        // Stage für UI-Elemente erstellen
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
 
-        // Kleinere Schrift für den Neustart-Text
-        restartLayout = new GlyphLayout();
-        font.getData().setScale(1.5f);
-        restartLayout.setText(font, restartMessage);
-        font.getData().setScale(3); // Zurück zur größeren Schrift für das Rendering
+        // Button-Texturen programmatisch generieren
+        Texture buttonTexture = createButtonTexture(400, 80, new Color(0.2f, 0.6f, 1f, 1)); // Hellblau
+        Texture buttonPressedTexture = createButtonTexture(400, 80, new Color(0.1f, 0.3f, 0.5f, 1)); // Dunkelblau
 
-        // Setze Input Processor
-        Gdx.input.setInputProcessor(this);
+        // Button-Stil definieren
+        TextButtonStyle style = new TextButtonStyle();
+        style.font = new BitmapFont();
+        style.font.getData().setScale(1.8f);
+        style.up = new TextureRegionDrawable(new TextureRegion(buttonTexture));
+        style.down = new TextureRegionDrawable(new TextureRegion(buttonPressedTexture));
 
-        // Lade den Game Over Sound (falls vorhanden)
+        // Buttons erstellen und positionieren
+        restartButton = new TextButton("Neues Spiel", style);
+        restartButton.setPosition(
+            Gdx.graphics.getWidth()/2f - 200f,
+            Gdx.graphics.getHeight()/2f - 50f
+        );
+        restartButton.setSize(400, 80);
+
+        menuButton = new TextButton("Hauptmenü", style);
+        menuButton.setPosition(
+            Gdx.graphics.getWidth()/2f - 200f,
+            Gdx.graphics.getHeight()/2f - 150f
+        );
+        menuButton.setSize(400, 80);
+
+        // Button-Events hinzufügen
+        restartButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                startNewGame();
+                return true;
+            }
+        });
+
+        menuButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                returnToMainMenu();
+                return true;
+            }
+        });
+
+        // Buttons zur Stage hinzufügen
+        stage.addActor(restartButton);
+        stage.addActor(menuButton);
+
+        // Soundeffekt laden
         try {
             gameOverSound = Gdx.audio.newSound(Gdx.files.internal("sfx/gameover.ogg"));
         } catch (Exception e) {
-            System.out.println("Game over sound konnte nicht geladen werden: " + e.getMessage());
+            Gdx.app.error("GameOverScreen", "Sound konnte nicht geladen werden", e);
         }
     }
 
     @Override
     public void render(float delta) {
-        // Spiele den Sound einmal ab
+        // Hintergrund mit weichem Blau füllen
+        Gdx.gl.glClearColor(0.1f, 0.1f, 0.2f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // Game Over Sound einmalig abspielen
         if (!soundPlayed && gameOverSound != null) {
-            gameOverSound.play();
+            gameOverSound.play(0.7f);
             soundPlayed = true;
         }
 
-        // Bildschirm leeren
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        // Position und Größe der Box berechnen
-        float screenWidth = Gdx.graphics.getWidth();
-        float screenHeight = Gdx.graphics.getHeight();
-
-        float messageX = (screenWidth - glyphLayout.width) / 2;
-        float messageY = (screenHeight + glyphLayout.height) / 2 + 30; // Etwas höher platzieren
-
-        float boxWidth = Math.max(glyphLayout.width, restartLayout.width) + padding * 2;
-        float boxHeight = glyphLayout.height + restartLayout.height + padding * 3; // Extra padding für den zweiten Text
-        float boxX = (screenWidth - boxWidth) / 2;
-        float boxY = messageY - glyphLayout.height - padding * 2 - restartLayout.height;
-
-        // Position für den Neustart-Text
-        float restartX = (screenWidth - restartLayout.width) / 2;
-        float restartY = messageY - glyphLayout.height - padding;
-
-        // Blending aktivieren für transparente Box
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-        // Box zeichnen
-        shapeRenderer.begin(ShapeType.Filled);
-        shapeRenderer.setColor(0, 0, 0, boxAlpha);
-        shapeRenderer.rect(boxX, boxY, boxWidth, boxHeight);
-        shapeRenderer.end();
-
-        // Rand zeichnen
-        shapeRenderer.begin(ShapeType.Line);
-        shapeRenderer.setColor(1, 0, 0, 1); // Roter Rand
-        shapeRenderer.rect(boxX, boxY, boxWidth, boxHeight);
-        shapeRenderer.end();
-
-        // Blending deaktivieren
-        Gdx.gl.glDisable(GL20.GL_BLEND);
-
-        // Text zeichnen
+        // "GAME OVER" Text zeichnen
         batch.begin();
-        font.setColor(1, 0, 0, 1); // Roter Text für GAME OVER
-        font.draw(batch, message, messageX, messageY);
-
-        // Neustart Text
-        font.getData().setScale(1.5f);
-        font.setColor(1, 1, 1, 1); // Weißer Text für Neustart-Anweisung
-        font.draw(batch, restartMessage, restartX, restartY);
-        font.getData().setScale(3); // Zurück zur größeren Schrift
-
+        font.setColor(1, 0.2f, 0.2f, 1); // Roter Text
+        float textX = Gdx.graphics.getWidth()/2f - glyphLayout.width/2f;
+        float textY = Gdx.graphics.getHeight() - 100f;
+        font.draw(batch, message, textX, textY);
         batch.end();
 
-        // Auch auf Tastendruck prüfen (falls InputProcessor nicht richtig funktioniert)
-        checkInput();
+        // UI aktualisieren und zeichnen
+        stage.act(delta);
+        stage.draw();
     }
 
-    private void checkInput() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            restartGame();
-        }
+    /**
+     * Erstellt eine abgerundete Button-Textur
+     * @param width Button-Breite
+     * @param height Button-Höhe
+     * @param color Button-Farbe
+     * @return Die generierte Texture
+     */
+    private Texture createButtonTexture(int width, int height, Color color) {
+        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fillRectangle(0, 0, width, height); // Yuvarlatma yok
+
+        // Hafif kenar çizimi (gölge gibi)
+        pixmap.setColor(color.r * 0.8f, color.g * 0.8f, color.b * 0.8f, 1);
+        pixmap.drawRectangle(0, 0, width, height); // Normal dikdörtgen çizimi
+
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
     }
 
-    @Override
-    public boolean keyDown(int keycode) {
-        if (keycode == Input.Keys.SPACE) {
-            restartGame();
-            return true;
-        }
-        return false;
+
+    private void startNewGame() {
+        game.setScreen(new StartGame(true)); // Annahme: GameScreen existiert
+        dispose();
     }
 
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        restartGame();
-        return true;
-    }
-
-    private void restartGame() {
-        // Zurück zum ersten Screen
+    private void returnToMainMenu() {
         game.setScreen(new MainMenu(game));
         dispose();
     }
 
     @Override
     public void resize(int width, int height) {
-        // Nichts zu tun
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
-    public void pause() {
-        // Nichts zu tun
-    }
+    public void pause() {}
 
     @Override
-    public void resume() {
-        // Nichts zu tun
-    }
+    public void resume() {}
 
     @Override
-    public void hide() {
-        // Nichts zu tun
-    }
+    public void hide() {}
 
     @Override
     public void dispose() {
-        batch.dispose();
-        shapeRenderer.dispose();
-        font.dispose();
-        if (gameOverSound != null) {
-            gameOverSound.dispose();
-        }
+        if (batch != null) batch.dispose();
+        if (font != null) font.dispose();
+        if (stage != null) stage.dispose();
+        if (gameOverSound != null) gameOverSound.dispose();
     }
 }
