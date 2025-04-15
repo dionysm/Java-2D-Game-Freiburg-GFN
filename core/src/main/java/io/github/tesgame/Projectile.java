@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 public class Projectile {
     private Vector2 position;
     private Vector2 velocity;
-    private float speed = 400f;
+    private float speed = 100f;
     private Texture texture;
     private float width, height;
     private float scale = 0.2f; // Scale factor for the sprite size

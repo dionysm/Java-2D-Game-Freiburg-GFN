@@ -9,9 +9,9 @@ public class OrcEnemy extends Enemy {
     private static final int FRAME_ROWS = 4;
 
     public OrcEnemy(float x, float y) {
-        super(x, y, 30f, 8); // Speed: 30 (slower), Health: 8 (tougher)
-        attackRange = 60f; // Slightly larger attack range
-        attackCooldown = 5f; // 5 second cooldown
+        super(x, y, 60f, 5); // Speed: 30 (slower), Health: 8 (tougher)
+        attackRange = 100f; // Slightly larger attack range
+        attackCooldown = 2f; // 5 second cooldown
         isMeleeAttacker = true;
     }
 
@@ -41,6 +41,6 @@ public class OrcEnemy extends Enemy {
     @Override
     protected void performAttack(Player player) {
         // Heavy melee attack
-        player.takeDamage(1);
+        player.takeDamage(3);
     }
 }

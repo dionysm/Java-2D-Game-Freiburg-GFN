@@ -14,9 +14,9 @@ public class SkeletonEnemy extends Enemy {
     private ArrayList<EnemyProjectile> projectiles;
 
     public SkeletonEnemy(float x, float y) {
-        super(x, y, 40f, 5); // Speed: 40, Health: 5
-        attackRange = 250f; // Can attack from far away
-        attackCooldown = 5f; // 5 second cooldown
+        super(x, y, 60f, 5); // Speed: 40, Health: 5
+        attackRange = Float.MAX_VALUE; // Can attack from far away
+        attackCooldown = 4f; // 5 second cooldown
         isRangedAttacker = true;
         projectiles = new ArrayList<>();
     }

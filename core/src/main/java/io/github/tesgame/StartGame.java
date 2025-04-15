@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 
 public class StartGame extends InputAdapter implements Screen {
     SpriteBatch batch;
@@ -23,7 +24,6 @@ public class StartGame extends InputAdapter implements Screen {
     private BitmapFont font;
     private GlyphLayout glyphLayout;
     private ShapeRenderer shapeRenderer;
-
 
     public StartGame(boolean musicOn) {
         this.musicOn = musicOn;
@@ -52,7 +52,6 @@ public class StartGame extends InputAdapter implements Screen {
 
     @Override
     public void render(float delta) {
-
         if(player.isDead() && !gameOver){
             gameOver=true;
             ((Main)Gdx.app.getApplicationListener()).setScreen(new GameOverScreen((Main)Gdx.app.getApplicationListener()));
@@ -60,16 +59,19 @@ public class StartGame extends InputAdapter implements Screen {
         }
         ScreenUtils.clear(0, 198, 10, 0);
 
-        // Pass camera controller to player for coordinate conversion
-        player.update(delta, cameraController);
+        // Get mouse position for aiming (since crosshair is removed)
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.input.getY();
+        Vector2 mousePos = cameraController.screenToWorld(mouseX, mouseY);
+
+        // Pass camera controller and mouse position to player
+        player.update(delta, cameraController, mousePos);
 
         cameraController.update(player.getPosition(), delta);
         enemyManager.update(delta, player.getPosition(), player.getWeapon(), player);
 
         // Set batch to use camera
         batch.setProjectionMatrix(cameraController.getCamera().combined);
-
-
 
         batch.begin();
 
@@ -81,8 +83,6 @@ public class StartGame extends InputAdapter implements Screen {
         enemyManager.draw(batch);
         map.expandMapIfNeeded(player.getPosition());
         batch.end();
-
-
 
         // Draw HUD (score)
         scoreDisplay.draw(batch);
@@ -109,5 +109,4 @@ public class StartGame extends InputAdapter implements Screen {
         scoreDisplay.dispose();
         bgMusic.dispose();
     }
-
 }

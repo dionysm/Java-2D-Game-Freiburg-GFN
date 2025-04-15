@@ -9,27 +9,41 @@ import java.util.Iterator;
 public class EnemyManager {
     private ArrayList<Enemy> enemies;
     private float spawnTimer = 0;
+    private float initialDelay = 2.0f; // 2-second initial delay
+    private boolean initialSpawnDone = false; // Track if initial spawn happened
     private float spawnRate = 2.0f;
     private float spawnDistance = 300;
     private int maxEnemies = 50;
-    private ScoreDisplay scoreDisplay; // Add this field
+    private ScoreDisplay scoreDisplay;
 
     public EnemyManager(ScoreDisplay scoreDisplay) {
-        this.scoreDisplay = scoreDisplay; // Initialize the field
+        this.scoreDisplay = scoreDisplay;
         enemies = new ArrayList<>();
-        // Spawn initial enemies
-        for (int i = 0; i < 5; i++) {
-            float x = MathUtils.random(100, 700);
-            float y = MathUtils.random(100, 500);
-            spawnRandomEnemy(x, y);
-        }
+        // No initial enemies - will spawn after delay
     }
 
     public void update(float delta, Vector2 playerPosition, Weapon playerWeapon, Player player) {
         // Update spawn timer
         spawnTimer += delta;
 
-        // Spawn new enemies if it's time and we're under the limit
+        // Handle initial delay before spawning enemies
+        if (!initialSpawnDone) {
+            if (spawnTimer >= initialDelay) {
+                initialSpawnDone = true;
+                spawnTimer = 0;
+
+                // Spawn initial batch of enemies after delay
+                for (int i = 0; i < 5; i++) {
+                    float x = MathUtils.random(100, 700);
+                    float y = MathUtils.random(100, 500);
+                    spawnRandomEnemy(x, y);
+                }
+                System.out.println("Initial enemies spawned after delay!");
+            }
+            return; // Skip rest of update until initial spawn happens
+        }
+
+        // Regular enemy spawning after initial batch
         if (spawnTimer >= spawnRate && enemies.size() < maxEnemies) {
             spawnTimer = 0;
             spawnEnemy(playerPosition);
@@ -44,14 +58,14 @@ public class EnemyManager {
             // Remove dead enemies, heal player, and increment score
             if (enemy.isDead()) {
                 player.heal(1);
-                scoreDisplay.incrementScore(); // Increment score here
+                scoreDisplay.incrementScore();
                 iterator.remove();
             }
         }
 
         // Check collisions with player weapons
         ArrayList<Projectile> projectiles = playerWeapon.getProjectiles();
-        if (projectiles != null) { // Add null check
+        if (projectiles != null) {
             Iterator<Projectile> projectileIterator = projectiles.iterator();
             while (projectileIterator.hasNext()) {
                 Projectile projectile = projectileIterator.next();

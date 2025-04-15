@@ -12,7 +12,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Player {
     private float x, y;
-    private float speed = 100f;
+    private float normalSpeed = 90f;
+    private float speed = normalSpeed;
     private static final int FRAME_COLS = 4;
     private static final int FRAME_ROWS = 4;
     private Texture spriteSheet;
@@ -30,13 +31,19 @@ public class Player {
     private float invincibilityDuration = 0.5f;
     private boolean isInvincible = false;
 
+    // Slow effect system
+    private boolean isSlowed = false;
+    private float slowDuration = 0;
+    private float slowTimer = 0;
+    private float slowFactor = 1.0f; // 1.0 = normal speed, 0.5 = half speed
+
     private Weapon weapon;
     private HeartDisplay heartDisplay;
 
     // Game Over
     private boolean isDead = false;
 
-        public Player() {
+    public Player() {
         spriteSheet = new Texture("sprites/chars/Walk.png");
 
         // Create a 1x1 white pixel for UI elements if needed
@@ -82,7 +89,17 @@ public class Player {
         heartDisplay = new HeartDisplay();
     }
 
-    public void update(float delta, CameraController cameraController) {
+    public void update(float delta, CameraController cameraController, Vector2 crosshairPosition) {
+        // Update slow effect timer
+        if (isSlowed) {
+            slowTimer += delta;
+            if (slowTimer >= slowDuration) {
+                isSlowed = false;
+                speed = normalSpeed; // Reset to normal speed
+                System.out.println("Slow effect wore off!");
+            }
+        }
+
         isMoving = false;
         Vector2 direction = new Vector2(0, 0); // Default direction
 
@@ -128,23 +145,18 @@ public class Player {
             }
         }
 
-        // Get mouse position in screen coordinates
-        float mouseX = Gdx.input.getX();
-        float mouseY = Gdx.input.getY();
-
-        // Convert to world coordinates
-        Vector2 worldMouse = cameraController.screenToWorld(mouseX, mouseY);
-
-        // Update weapon with world coordinates
-        weapon.update(delta, x + width/2, y + height/2, worldMouse);
+        // Update weapon with crosshair position
+        weapon.update(delta, x + width/2, y + height/2, crosshairPosition);
     }
 
     public void draw(SpriteBatch batch) {
         // Draw player
         TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
 
-        // Flash if invincible
-        if (isInvincible && ((int)(invincibilityTimer * 10) % 2 == 0)) {
+        // Apply visual effects based on status
+        if (isSlowed) {
+            batch.setColor(0.7f, 0.7f, 1.0f, 1.0f); // Blue tint when slowed
+        } else if (isInvincible && ((int)(invincibilityTimer * 10) % 2 == 0)) {
             batch.setColor(1, 1, 1, 0.5f); // Semi-transparent when flashing
         }
 
@@ -178,8 +190,20 @@ public class Player {
         System.out.println("Player healed! Health: " + health);
     }
 
+    public void applySlowEffect(float duration, float slowAmount) {
+        // Only apply if longer than current slow or not slowed yet
+        if (!isSlowed || duration > slowDuration - slowTimer) {
+            isSlowed = true;
+            slowDuration = duration;
+            slowTimer = 0;
+            slowFactor = 1.0f - slowAmount; // Convert % slow to multiplier
+            speed = normalSpeed * slowFactor;
+            System.out.println("Player slowed by " + (slowAmount*100) + "% for " + duration + " seconds!");
+        }
+    }
+
     public boolean isDead() {
-            return isDead;
+        return isDead;
     }
 
     public void dispose() {
