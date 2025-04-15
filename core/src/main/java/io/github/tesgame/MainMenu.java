@@ -9,35 +9,81 @@ public class MainMenu implements Screen {
     SpriteBatch batch;
     Texture bg;
     BitmapFont font;
-    String[] menu = {"Start Game", "Highscore", "Exit"};
+
+    // Menüinhalte
+    String[] mainMenu = {"Start Game", "Highscore", "Settings", "Exit"};
+    String[] settingsMenu = {"Music ON", "Music OFF", "Back"};
+    // TODO MUSIC ON/OFF in einem und SOUND ON/OF auch in einem Menüpunkt
     int selected = 0;
+    boolean inSettings = false;
+
+    // TODO statt einfachem bool für musicON ein Feld für mehre Settings
+    boolean[] settings = { true, true };   // First is Music Second is SFX
+    boolean musicOn = true;
 
     public MainMenu(Game game) {
         this.game = game;
         batch = new SpriteBatch();
         bg = new Texture("MainMenuBackground.png");
         font = new BitmapFont();
-        font.getData().setScale(2f);  // Doppelt so große Font
+        font.getData().setScale(2f);
 
-        // Key Abfrage
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
-
+                // Menü-Auswahl bewegen
                 if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
-                    selected = (selected + 1) % menu.length;
+                    selected = (selected + 1) % currentMenu().length;
                 }
                 if (keycode == Input.Keys.UP || keycode == Input.Keys.W) {
-                    selected = (selected - 1 + menu.length) % menu.length;
+                    selected = (selected - 1 + currentMenu().length) % currentMenu().length;
                 }
+
+                // Auswahl bestätigen
                 if (keycode == Input.Keys.ENTER || keycode == Input.Keys.SPACE) {
-                    if (selected == 0) game.setScreen(new StartGame());; // START GAME
-                    if (selected == 1) System.out.println("Highscore");
-                    if (selected == 2) Gdx.app.exit();
+                    if (!inSettings) {
+                        // Hauptmenüaktionen
+                        switch (selected) {
+                            case 0:
+                                game.setScreen(new StartGame(musicOn));
+                                break;
+                            case 1:
+                                System.out.println("Highscore");
+                                break;
+                            case 2:
+                                inSettings = true;
+                                selected = 0;
+                                break;
+                            case 3:
+                                Gdx.app.exit();
+                                break;
+                        }
+                    } else {
+                        // Settings-Menüaktionen
+                        switch (selected) {
+                            case 0:
+                                musicOn = true;
+                                System.out.println("Music ON");
+                                break;
+                            case 1:
+                                musicOn = false;
+                                System.out.println("Music OFF");
+                                break;
+                            case 2:
+                                inSettings = false;
+                                selected = 0;
+                                break;
+                        }
+
+                    }
                 }
                 return true;
             }
         });
+    }
+
+    private String[] currentMenu() {
+        return inSettings ? settingsMenu : mainMenu;
     }
 
     @Override
@@ -49,15 +95,19 @@ public class MainMenu implements Screen {
         int w = Gdx.graphics.getWidth();
         int h = Gdx.graphics.getHeight();
 
+        String[] menu = currentMenu();
         for (int i = 0; i < menu.length; i++) {
-            if (i == selected) {
-                font.setColor(Color.RED);
-            }
-            else {
-                font.setColor(Color.WHITE);
-            }
+            if (i == selected) font.setColor(Color.RED);
+            else font.setColor(Color.WHITE);
+
             String text = (i == selected ? "- " : "  ") + menu[i];
-            font.draw(batch, text, w / 2f - 100, h / 2f + 80 - i * 40);
+
+            // Zeige Musikstatus an
+            if (inSettings && (menu[i].startsWith("Music"))) {
+                text += musicOn && i == 0 ? " (active)" : (!musicOn && i == 1 ? " (active)" : "");
+            }
+
+            font.draw(batch, text, w / 2f - 150, h / 2f + 80 - i * 40);
         }
 
         batch.end();

@@ -18,15 +18,24 @@ public class StartGame extends InputAdapter implements Screen {
     Map map;
     ScoreDisplay scoreDisplay;
     Sound bgMusic;
+    private boolean musicOn;
     private boolean gameOver = false;
     private BitmapFont font;
     private GlyphLayout glyphLayout;
     private ShapeRenderer shapeRenderer;
 
+
+    public StartGame(boolean musicOn) {
+        this.musicOn = musicOn;
+    }
+
     @Override
     public void show() {
-        bgMusic = Gdx.audio.newSound(Gdx.files.internal("sfx/FinalArea.ogg"));
-        bgMusic.play();
+        if (musicOn){
+            bgMusic = Gdx.audio.newSound(Gdx.files.internal("sfx/FinalArea.ogg"));
+            bgMusic.play();
+        }
+
         batch = new SpriteBatch();
         player = new Player();
         cameraController = new CameraController(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

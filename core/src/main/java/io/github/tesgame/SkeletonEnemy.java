@@ -34,7 +34,9 @@ public class SkeletonEnemy extends Enemy {
         // Create animation frames (using the first row for walking animation)
         TextureRegion[] frames = new TextureRegion[FRAME_COLS];
         for (int i = 0; i < FRAME_COLS; i++) {
-            frames[i] = tmp[0][i]; // Using first row (index 0)
+
+            // TODO: NEED TO ADD directional rendering, right now they spin in a circle
+            frames[i] = tmp[i][0]; // Using first row (index 0)
         }
 
         animation = new Animation<>(0.15f, frames);
