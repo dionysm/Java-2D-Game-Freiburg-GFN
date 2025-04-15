@@ -60,14 +60,20 @@ public class StartGame extends InputAdapter implements Screen {
         // Set batch to use camera
         batch.setProjectionMatrix(cameraController.getCamera().combined);
 
-        // Draw game objects
+
+
         batch.begin();
-        map.draw(batch);          // zuerst Boden
-        map.drawTrees(batch);     // dann Bäume
-        player.draw(batch);       // dann Spieler
-        map.expandMapIfNeeded(player.getPosition());
+
+        // Draw game objects
+        map.draw(batch);
+        map.drawTreeStems(batch);
+        player.draw(batch);
+        map.drawTreeCrowns(batch);
         enemyManager.draw(batch);
+        map.expandMapIfNeeded(player.getPosition());
         batch.end();
+
+
 
         // Draw HUD (score)
         scoreDisplay.draw(batch);
