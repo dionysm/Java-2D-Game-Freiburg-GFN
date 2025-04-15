@@ -18,7 +18,7 @@ public class OrcEnemy extends Enemy {
     @Override
     protected void loadSprites() {
         // Load enemy sprite sheet
-        spriteSheet = new Texture("sprites/Walk-Enemy3.png");
+        spriteSheet = new Texture("sprites/chars/Walk-Enemy3.png");
 
         // Set up animation with the sprite sheet
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,

@@ -18,7 +18,7 @@ public class Projectile {
         position = new Vector2(x, y);
 
         // Load the projectile texture
-        texture = new Texture("sprites/red-star.png");
+        texture = new Texture("sprites/items/red-star.png");
 
         // Get dimensions and apply scaling
         width = texture.getWidth() * scale;
