@@ -12,15 +12,15 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Map {
     private static final int SPRITESHEET_COLS = 20;
     private static final int SPRITESHEET_ROWS = 9;
-    private static final int TILE_WIDTH = 32; //Kachelbreite Pixel
+    private static final int TILE_WIDTH = 32; //Kachelbreite in Pixel
     private static final int TILE_HEIGHT = 32;
     private static final int INITIAL_WIDTH = 64;
     private static final int INITIAL_HEIGHT = 36;
 
     // Baueme
     private final List<Vector2> treePositions = new ArrayList<>();
-    private Texture spriteSheet;
-    private TextureRegion[][] tiles;
+    private final Texture spriteSheet;
+    private final TextureRegion[][] tiles;
     private TextureRegion[][] mapTiles;
     // Für Verschiebung Links und unten
     private int offsetX = 0;
@@ -30,12 +30,8 @@ public class Map {
 
     private final int[] allowedTileCols = {0, 1, 2}; // nur diese vier Spalten benutzen
     private final int[] allowedTileRows = {2,3,4,5}; // nur die dritte Zeile (Gras, dreck wasser)
-    private final int[][] Tree = {
-            {0},  //Spalte
-            {0, 1} //Zeile
-    };
     public Map() {
-        spriteSheet = new Texture("sprites/environment.png");
+        spriteSheet = new Texture("sprites/environment/environment.png");
 
         // Kacheln extrahieren
         tiles = TextureRegion.split(spriteSheet,
@@ -55,7 +51,7 @@ public class Map {
         for (int y = 0; y < mapHeight; y++) {
             for (int x = 0; x < mapWidth; x++) {
                 // Platz für Baum reservieren?
-                boolean placeTree = ThreadLocalRandom.current().nextDouble() < 0.02; // z.B. 2% Wahrscheinlichkeit
+                boolean placeTree = ThreadLocalRandom.current().nextDouble() < 0.02; // z.B. 2 % Wahrscheinlichkeit
 
                 // Nur platzieren, wenn noch Platz nach oben ist
                 if (placeTree && y < mapHeight - 1) {
@@ -121,9 +117,9 @@ public class Map {
             expanded = true;
         }
 
-        if (expanded) {
-           // System.out.println("Map expanded to: " + mapWidth + "x" + mapHeight);
-        }
+        /* FOR DEBUGGING if (expanded) {
+            System.out.println("Map expanded to: " + mapWidth + "x" + mapHeight);
+        }*/
     }
 
     private void expandRight() {

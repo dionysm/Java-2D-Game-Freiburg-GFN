@@ -24,7 +24,7 @@ public class SkeletonEnemy extends Enemy {
     @Override
     protected void loadSprites() {
         // Load enemy sprite sheet
-        spriteSheet = new Texture("sprites/Skeleton-Walk.png");
+        spriteSheet = new Texture("sprites/chars/Skeleton-Walk.png");
 
         // Set up animation with the 4x4 sprite sheet
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,

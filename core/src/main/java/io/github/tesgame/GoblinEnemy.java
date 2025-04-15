@@ -18,7 +18,7 @@ public class GoblinEnemy extends Enemy {
     @Override
     protected void loadSprites() {
         // Load enemy sprite sheet
-        spriteSheet = new Texture("sprites/Walk-Enemy2.png");
+        spriteSheet = new Texture("sprites/chars/Walk-Enemy2.png");
 
         // Set up animation with the sprite sheet
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,

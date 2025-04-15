@@ -34,7 +34,7 @@ public class Player {
     private HeartDisplay heartDisplay;
 
     public Player() {
-        spriteSheet = new Texture("sprites/Walk.png");
+        spriteSheet = new Texture("sprites/chars/Walk.png");
 
         // Create a 1x1 white pixel for UI elements if needed
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
