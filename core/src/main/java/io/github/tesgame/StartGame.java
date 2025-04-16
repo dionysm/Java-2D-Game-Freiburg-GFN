@@ -3,7 +3,6 @@ package io.github.tesgame;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import io.github.tesgame.Combat.Crosshair;
+import io.github.tesgame.Controller.AudioController;
 import io.github.tesgame.Controller.CameraController;
 import io.github.tesgame.Enemies.EnemyManager;
 import io.github.tesgame.Environment.Map;
@@ -25,7 +25,6 @@ public class StartGame extends InputAdapter implements Screen {
     Map map;
     ScoreDisplay scoreDisplay;
     Crosshair crosshair; // Add crosshair field
-    Sound bgMusic;
     private boolean musicOn;
     private boolean gameOver = false;
     private BitmapFont font;
@@ -39,8 +38,8 @@ public class StartGame extends InputAdapter implements Screen {
     @Override
     public void show() {
         if (musicOn){
-            bgMusic = Gdx.audio.newSound(Gdx.files.internal("sfx/FinalArea.ogg"));
-            bgMusic.play(0.2f);
+            AudioController.getInstance().loadMusic("backgroundMusic", "FinalArea.ogg");
+            AudioController.getInstance().playMusic("backgroundMusic");
         }
 
         batch = new SpriteBatch();
@@ -122,7 +121,6 @@ public class StartGame extends InputAdapter implements Screen {
         map.dispose();
         scoreDisplay.dispose();
         crosshair.dispose(); // Dispose the crosshair
-        bgMusic.dispose();
 
         // Show the system cursor again
         Gdx.input.setCursorCatched(false);
