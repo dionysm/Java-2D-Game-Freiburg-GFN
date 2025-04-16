@@ -65,7 +65,8 @@ public class StartGame extends InputAdapter implements Screen {
     public void render(float delta) {
         if(player.isDead() && !gameOver){
             gameOver=true;
-            ((Main)Gdx.app.getApplicationListener()).setScreen(new GameOverScreen((Main)Gdx.app.getApplicationListener()));
+            int finalScore = scoreDisplay.getScore();
+            ((Main)Gdx.app.getApplicationListener()).setScreen(new GameOverScreen((Main)Gdx.app.getApplicationListener(), finalScore));
             return;
         }
         ScreenUtils.clear(0, 198, 10, 0);

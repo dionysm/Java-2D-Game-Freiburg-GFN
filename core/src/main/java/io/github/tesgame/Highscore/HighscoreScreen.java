@@ -18,7 +18,7 @@ public class HighscoreScreen implements Screen {
         this.batch = new SpriteBatch();
         this.font = new BitmapFont();
         this.font.getData().setScale(2f);
-        this.highscoreManager = new HighscoreManager();
+        this.highscoreManager = HighscoreManager.getInstance();
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
