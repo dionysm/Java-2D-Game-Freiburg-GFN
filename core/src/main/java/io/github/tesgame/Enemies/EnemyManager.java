@@ -17,9 +17,12 @@ public class EnemyManager {
     private float initialDelay = 2.0f; // 2-second initial delay
     private boolean initialSpawnDone = false; // Track if initial spawn happened
     private float spawnRate = 2.0f;
+    private float baseSpawnRate = 2.0f; // Store the initial spawn rate
     private float spawnDistance = 300;
     private int maxEnemies = 50;
     private ScoreDisplay scoreDisplay;
+    private int previousScore = 0; // Track previous score to detect changes
+    private int difficultyLevel = 0; // Track how many times we've increased difficulty
 
     public EnemyManager(ScoreDisplay scoreDisplay) {
         this.scoreDisplay = scoreDisplay;
@@ -46,6 +49,23 @@ public class EnemyManager {
                 System.out.println("Initial enemies spawned after delay!");
             }
             return; // Skip rest of update until initial spawn happens
+        }
+
+        // Check if score has increased by 10 since last difficulty increase
+        int currentScore = scoreDisplay.getScore();
+        if (currentScore >= (difficultyLevel + 1) * 10) {
+            // Increase difficulty
+            difficultyLevel++;
+
+            // Decrease spawn rate (make enemies spawn faster)
+            spawnRate = Math.max(baseSpawnRate - (difficultyLevel * 0.1f), 0.5f);
+
+            // Increase spawn count (more enemies at once)
+            maxEnemies = Math.min(50 + (difficultyLevel * 2), 100);
+
+            System.out.println("Difficulty increased! Level: " + difficultyLevel +
+                ", Spawn rate: " + spawnRate +
+                ", Max enemies: " + maxEnemies);
         }
 
         // Regular enemy spawning after initial batch
@@ -102,21 +122,33 @@ public class EnemyManager {
     }
 
     private void spawnRandomEnemy(float x, float y) {
-        int enemyType = MathUtils.random(2);
+        // Adjust enemy type probabilities based on difficulty
+        float skeletonChance = 0.33f;
+        float goblinChance = 0.33f;
+        float orcChance = 0.33f;
 
+        // As difficulty increases, spawn more difficult enemies
+        if (difficultyLevel > 5) {
+            skeletonChance = 0.3f;
+            goblinChance = 0.3f;
+            orcChance = 0.4f;
+        }
+        if (difficultyLevel > 10) {
+            skeletonChance = 0.25f;
+            goblinChance = 0.35f;
+            orcChance = 0.4f;
+        }
+
+        // Choose enemy type based on probabilities
+        float roll = MathUtils.random();
         Enemy enemy;
-        switch (enemyType) {
-            case 0:
-                enemy = new SkeletonEnemy(x, y);
-                break;
-            case 1:
-                enemy = new GoblinEnemy(x, y);
-                break;
-            case 2:
-                enemy = new OrcEnemy(x, y);
-                break;
-            default:
-                enemy = new SkeletonEnemy(x, y);
+
+        if (roll < skeletonChance) {
+            enemy = new SkeletonEnemy(x, y);
+        } else if (roll < skeletonChance + goblinChance) {
+            enemy = new GoblinEnemy(x, y);
+        } else {
+            enemy = new OrcEnemy(x, y);
         }
 
         enemies.add(enemy);
