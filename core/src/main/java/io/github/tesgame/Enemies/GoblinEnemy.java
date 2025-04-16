@@ -27,7 +27,7 @@ public class GoblinEnemy extends Enemy {
     private float predictionTime = 1.0f; // How far ahead to predict (seconds)
 
     public GoblinEnemy(float x, float y) {
-        super(x, y, 60f, 3); // Speed: 60 (faster), Health: 3 (weaker)
+        super(x, y, 80f, 3); // Speed: 60 (faster), Health: 3 (weaker)
         attackRange = 50f;
         attackCooldown = 2f; // Short cooldown
         isMeleeAttacker = true;
