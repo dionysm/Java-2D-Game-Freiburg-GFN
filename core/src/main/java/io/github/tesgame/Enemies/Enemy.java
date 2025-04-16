@@ -48,7 +48,7 @@ public abstract class Enemy {
     // Death effect
     protected DeathEffect deathEffect;
     protected String deathEffectPath;
-    protected float deathEffectDuration = 2.0f;
+    protected float deathEffectDuration = 10.0f;
     protected boolean showingDeathEffect = false;
 
     // Health bar
