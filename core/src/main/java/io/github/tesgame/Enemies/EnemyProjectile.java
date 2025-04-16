@@ -1,4 +1,4 @@
-package io.github.tesgame;
+package io.github.tesgame.Enemies;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import io.github.tesgame.Player;
 
 public class EnemyProjectile {
     private Vector2 position;

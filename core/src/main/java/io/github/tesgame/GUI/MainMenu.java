@@ -1,10 +1,10 @@
-package io.github.tesgame;
+package io.github.tesgame.GUI;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.Game;
-import io.github.tesgame.highscore.HighscoreManager;
-import io.github.tesgame.highscore.HighscoreScreen;
+import io.github.tesgame.Highscore.HighscoreScreen;
+import io.github.tesgame.StartGame;
 
 public class MainMenu implements Screen {
     Game game;

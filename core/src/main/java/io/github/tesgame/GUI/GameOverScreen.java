@@ -1,4 +1,4 @@
-package io.github.tesgame;
+package io.github.tesgame.GUI;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -17,6 +17,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.audio.Sound;
+import io.github.tesgame.Main;
+import io.github.tesgame.StartGame;
 
 public class GameOverScreen implements Screen {
 

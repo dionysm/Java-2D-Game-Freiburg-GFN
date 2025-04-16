@@ -1,4 +1,4 @@
-package io.github.tesgame;
+package io.github.tesgame.Combat;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Gdx;

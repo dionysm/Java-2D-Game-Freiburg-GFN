@@ -10,6 +10,11 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import io.github.tesgame.Controller.CameraController;
+import io.github.tesgame.Enemies.EnemyManager;
+import io.github.tesgame.Environment.Map;
+import io.github.tesgame.GUI.GameOverScreen;
+import io.github.tesgame.GUI.ScoreDisplay;
 
 public class StartGame extends InputAdapter implements Screen {
     SpriteBatch batch;

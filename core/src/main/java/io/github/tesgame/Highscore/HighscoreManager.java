@@ -1,4 +1,4 @@
-package io.github.tesgame.highscore;
+package io.github.tesgame.Highscore;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;

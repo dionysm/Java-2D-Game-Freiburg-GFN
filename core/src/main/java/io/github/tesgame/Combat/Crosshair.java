@@ -1,10 +1,10 @@
-package io.github.tesgame;
+package io.github.tesgame.Combat;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import io.github.tesgame.Controller.CameraController;
 
 public class Crosshair {
     private Texture texture;

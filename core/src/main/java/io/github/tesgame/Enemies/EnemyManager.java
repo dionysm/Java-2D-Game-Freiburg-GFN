@@ -1,8 +1,13 @@
-package io.github.tesgame;
+package io.github.tesgame.Enemies;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import io.github.tesgame.*;
+import io.github.tesgame.Combat.Projectile;
+import io.github.tesgame.Combat.Weapon;
+import io.github.tesgame.GUI.ScoreDisplay;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 

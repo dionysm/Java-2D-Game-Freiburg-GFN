@@ -1,8 +1,9 @@
-package io.github.tesgame;
+package io.github.tesgame.Enemies;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import io.github.tesgame.Player;
 
 public class OrcEnemy extends Enemy {
     private static final int FRAME_COLS = 4;

@@ -1,11 +1,11 @@
-package io.github.tesgame;
+package io.github.tesgame.Combat;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import io.github.tesgame.Player;
 
 public class AOEEffect {
     private Vector2 position;

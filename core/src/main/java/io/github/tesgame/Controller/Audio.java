@@ -1,4 +1,4 @@
-package io.github.tesgame;
+package io.github.tesgame.Controller;
 
 public class Audio
 {

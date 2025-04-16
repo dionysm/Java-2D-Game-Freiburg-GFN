@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import io.github.tesgame.Combat.Weapon;
+import io.github.tesgame.Controller.CameraController;
+import io.github.tesgame.GUI.HeartDisplay;
 
 public class Player {
     private float x, y;

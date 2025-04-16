@@ -1,4 +1,4 @@
-package io.github.tesgame;
+package io.github.tesgame.GUI;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap;

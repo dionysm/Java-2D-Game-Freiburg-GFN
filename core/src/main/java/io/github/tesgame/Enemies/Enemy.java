@@ -1,4 +1,4 @@
-package io.github.tesgame;
+package io.github.tesgame.Enemies;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import io.github.tesgame.Player;
+import io.github.tesgame.Combat.Projectile;
 
 public abstract class Enemy {
     protected Vector2 position;

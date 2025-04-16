@@ -1,4 +1,4 @@
-package io.github.tesgame;
+package io.github.tesgame.Environment;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;

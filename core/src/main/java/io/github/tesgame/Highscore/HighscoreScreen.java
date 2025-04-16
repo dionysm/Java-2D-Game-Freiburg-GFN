@@ -1,10 +1,9 @@
-package io.github.tesgame.highscore;
+package io.github.tesgame.Highscore;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
-import io.github.tesgame.MainMenu;
-import io.github.tesgame.highscore.HighscoreManager;
+import io.github.tesgame.GUI.MainMenu;
 
 import java.util.List;
 
