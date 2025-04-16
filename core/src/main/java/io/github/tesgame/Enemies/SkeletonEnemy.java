@@ -11,7 +11,7 @@ public class SkeletonEnemy extends Enemy {
     private ArrayList<EnemyProjectile> projectiles;
 
     public SkeletonEnemy(float x, float y) {
-        super(x, y, 60f, 5, "sprites/chars/Skeleton-Walk.png", 4, 4);
+        super(x, y, 60f, 5, "sprites/chars/Walk-Skeleton.png", 4, 4, "sprites/chars/Dead-Skeleton.png");
         attackRange = Float.MAX_VALUE; // Can attack from far away
         attackCooldown = 4f; // 4 second cooldown
         isRangedAttacker = true;
@@ -31,6 +31,11 @@ public class SkeletonEnemy extends Enemy {
     @Override
     public void update(float delta, Vector2 playerPosition, Player player) {
         super.update(delta, playerPosition, player);
+
+        // Wenn tot und Death Effect angezeigt wird, führe keine weiteren Updates durch
+        if (isDead() && !isDeathEffectFinished()) {
+            return;
+        }
 
         // Update projectiles
         Iterator<EnemyProjectile> iterator = projectiles.iterator();
@@ -56,9 +61,11 @@ public class SkeletonEnemy extends Enemy {
     public void draw(SpriteBatch batch) {
         super.draw(batch);
 
-        // Draw projectiles
-        for (EnemyProjectile projectile : projectiles) {
-            projectile.draw(batch);
+        // Draw projectiles only if not dead
+        if (!isDead()) {
+            for (EnemyProjectile projectile : projectiles) {
+                projectile.draw(batch);
+            }
         }
     }
 

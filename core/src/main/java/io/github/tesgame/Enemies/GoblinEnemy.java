@@ -22,7 +22,7 @@ public class GoblinEnemy extends Enemy {
     private float predictionTime = 1.0f; // How far ahead to predict (seconds)
 
     public GoblinEnemy(float x, float y) {
-        super(x, y, 80f, 3, "sprites/chars/Walk-Enemy2.png", 4, 4);
+        super(x, y, 60f, 3, "sprites/chars/Walk-Tengu.png", 4, 4, "sprites/chars/Dead-Tengu.png");
         attackRange = 50f;
         attackCooldown = 2f; // Short cooldown
         isMeleeAttacker = true;
@@ -38,6 +38,11 @@ public class GoblinEnemy extends Enemy {
     @Override
     public void update(float delta, Vector2 playerPosition, Player player) {
         super.update(delta, playerPosition, player);
+
+        // Wenn tot und Death Effect angezeigt wird, führe keine weiteren Updates durch
+        if (isDead() && !isDeathEffectFinished()) {
+            return;
+        }
 
         // Update timer to track player movement
         updateTimer += delta;
@@ -112,9 +117,11 @@ public class GoblinEnemy extends Enemy {
     public void draw(SpriteBatch batch) {
         super.draw(batch);
 
-        // Draw all AOE effects
-        for (AOEEffect aoe : aoeEffects) {
-            aoe.draw(batch);
+        // Draw all AOE effects only if not dead
+        if (!isDead()) {
+            for (AOEEffect aoe : aoeEffects) {
+                aoe.draw(batch);
+            }
         }
     }
 

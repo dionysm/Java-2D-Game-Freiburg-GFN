@@ -50,7 +50,7 @@ public class Player {
     private boolean isDead = false;
 
     public Player() {
-        spriteSheet = new Texture("sprites/chars/Walk.png");
+        spriteSheet = new Texture("sprites/chars/Walk-Player-Red.png");
 
         // Create a 1x1 white pixel for UI elements if needed
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -64,8 +64,6 @@ public class Player {
             spriteSheet.getHeight() / FRAME_ROWS);
 
         // Store the dimensions of a single frame
-        width = tmp[0][0].getRegionWidth();
-        height = tmp[0][0].getRegionHeight();
 
         // Create collision bounds slightly smaller than visual size
         collisionBounds = new Rectangle(x, y, width * 0.7f, height * 0.4f);

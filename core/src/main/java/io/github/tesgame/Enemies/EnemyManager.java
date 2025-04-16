@@ -80,10 +80,15 @@ public class EnemyManager {
             Enemy enemy = iterator.next();
             enemy.update(delta, playerPosition, player);
 
-            // Remove dead enemies, heal player, and increment score
-            if (enemy.isDead()) {
+            // Handle scoring and healing when enemy dies
+            if (enemy.isDead() && !enemy.isRewardGiven()) {
                 player.heal(1);
                 scoreDisplay.incrementScore();
+                enemy.setRewardGiven(true); // Mark rewards as given
+            }
+
+            // Only remove enemies when they're fully dead AND their death effect is finished
+            if (enemy.isDead() && enemy.isDeathEffectFinished()) {
                 iterator.remove();
             }
         }

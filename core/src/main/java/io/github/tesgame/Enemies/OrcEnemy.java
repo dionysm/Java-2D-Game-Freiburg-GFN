@@ -11,7 +11,7 @@ public class OrcEnemy extends Enemy {
     private ArrayList<EnemyProjectile> projectiles;
 
     public OrcEnemy(float x, float y) {
-        super(x, y, 60f, 8, "sprites/chars/Walk-Enemy3.png", 4, 4); // Speed: 60, Health: 8 (stärker)
+        super(x, y, 60f, 8, "sprites/chars/Walk-Noble.png", 4, 4, "sprites/chars/Dead-Noble.png");
         attackRange = 100f; // Etwas größere Reichweite
         attackCooldown = 2f; // 2 Sekunden Cooldown
         isMeleeAttacker = true;
@@ -27,6 +27,11 @@ public class OrcEnemy extends Enemy {
     @Override
     public void update(float delta, Vector2 playerPosition, Player player) {
         super.update(delta, playerPosition, player);
+
+        // Wenn tot und Death Effect angezeigt wird, führe keine weiteren Updates durch
+        if (isDead() && !isDeathEffectFinished()) {
+            return;
+        }
 
         // Beispielhafte Projektile (falls Orc auch projizierte Angriffe hat)
         Iterator<EnemyProjectile> iterator = projectiles.iterator();
@@ -52,9 +57,11 @@ public class OrcEnemy extends Enemy {
     public void draw(SpriteBatch batch) {
         super.draw(batch);
 
-        // Zeichne die Projektile
-        for (EnemyProjectile projectile : projectiles) {
-            projectile.draw(batch);
+        // Zeichne die Projektile nur, wenn nicht tot
+        if (!isDead()) {
+            for (EnemyProjectile projectile : projectiles) {
+                projectile.draw(batch);
+            }
         }
     }
 

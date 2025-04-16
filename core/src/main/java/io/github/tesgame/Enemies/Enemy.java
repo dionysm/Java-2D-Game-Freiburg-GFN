@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import io.github.tesgame.Player;
 import io.github.tesgame.Combat.Projectile;
+import io.github.tesgame.Enemies.DeathEffect;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public abstract class Enemy {
     protected int maxHealth;
     protected int health;
     protected boolean isDead = false;
+    protected boolean rewardGiven = false; // Track if healing and score have been given
     protected ShapeRenderer shapeRenderer;
 
     // Attack properties
@@ -43,6 +45,12 @@ public abstract class Enemy {
     protected String spriteSheetPath;
     protected float animationSpeed = 0.15f;
 
+    // Death effect
+    protected DeathEffect deathEffect;
+    protected String deathEffectPath;
+    protected float deathEffectDuration = 2.0f;
+    protected boolean showingDeathEffect = false;
+
     // Health bar
     protected float healthBarWidth = 40;
     protected float healthBarHeight = 5;
@@ -57,7 +65,7 @@ public abstract class Enemy {
     // Sound
     protected static final Sound deathSoundFX = Gdx.audio.newSound(Gdx.files.internal("sfx/EnemyDead.wav"));
 
-    public Enemy(float x, float y, float speed, int maxHealth, String spriteSheetPath, int frameCols, int frameRows) {
+    public Enemy(float x, float y, float speed, int maxHealth, String spriteSheetPath, int frameCols, int frameRows, String deathEffectPath) {
         this.position = new Vector2(x, y);
         this.velocity = new Vector2(0, 0);
         this.speed = speed;
@@ -67,6 +75,7 @@ public abstract class Enemy {
         this.spriteSheetPath = spriteSheetPath;
         this.FRAME_COLS = frameCols;
         this.FRAME_ROWS = frameRows;
+        this.deathEffectPath = deathEffectPath;
 
         loadSprites(); // Load sprites with default implementation
     }
@@ -116,6 +125,18 @@ public abstract class Enemy {
     protected abstract void performAttack(Player player);
 
     public void update(float delta, Vector2 playerPosition, Player player) {
+        // Update death effect if active
+        if (showingDeathEffect && deathEffect != null) {
+            deathEffect.update(delta);
+
+            if (deathEffect.isFinished()) {
+                deathEffect.dispose();
+                deathEffect = null;
+                showingDeathEffect = false;
+            }
+            return; // Skip normal update if dead and showing death effect
+        }
+
         if (isDead) return;
 
         stateTime += delta;
@@ -156,6 +177,12 @@ public abstract class Enemy {
     }
 
     public void draw(SpriteBatch batch) {
+        // Zeichne den Todeseffekt, wenn aktiv
+        if (showingDeathEffect && deathEffect != null) {
+            deathEffect.draw(batch);
+            return; // Wenn tot, zeige nur den Death Effect
+        }
+
         if (isDead) return;
 
         TextureRegion currentFrame = animations != null
@@ -215,13 +242,30 @@ public abstract class Enemy {
         health -= damage;
         if (health <= 0) {
             isDead = true;
+
+            // Erstelle den Death Effect
+            deathEffect = new DeathEffect(position.x, position.y, deathEffectPath, deathEffectDuration);
+            showingDeathEffect = true;
+
+            // Spiele Sound
             deathSoundFX.play();
-            dispose();
         }
     }
 
     public boolean isDead() {
         return isDead;
+    }
+
+    public boolean isDeathEffectFinished() {
+        return isDead && !showingDeathEffect;
+    }
+
+    public boolean isRewardGiven() {
+        return rewardGiven;
+    }
+
+    public void setRewardGiven(boolean given) {
+        this.rewardGiven = given;
     }
 
     public Vector2 getPosition() {
@@ -231,5 +275,6 @@ public abstract class Enemy {
     public void dispose() {
         if (spriteSheet != null) spriteSheet.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
+        if (deathEffect != null) deathEffect.dispose();
     }
 }
