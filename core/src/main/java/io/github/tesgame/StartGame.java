@@ -3,13 +3,14 @@ package io.github.tesgame;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import io.github.tesgame.Combat.Crosshair;
+import io.github.tesgame.Controller.AudioController;
 import io.github.tesgame.Controller.CameraController;
 import io.github.tesgame.Enemies.EnemyManager;
 import io.github.tesgame.Environment.Map;
@@ -23,7 +24,7 @@ public class StartGame extends InputAdapter implements Screen {
     EnemyManager enemyManager;
     Map map;
     ScoreDisplay scoreDisplay;
-    Sound bgMusic;
+    Crosshair crosshair; // Add crosshair field
     private boolean musicOn;
     private boolean gameOver = false;
     private BitmapFont font;
@@ -37,16 +38,20 @@ public class StartGame extends InputAdapter implements Screen {
     @Override
     public void show() {
         if (musicOn){
-            bgMusic = Gdx.audio.newSound(Gdx.files.internal("sfx/FinalArea.ogg"));
-            bgMusic.play();
+            AudioController.getInstance().loadMusic("backgroundMusic", "FinalArea.ogg");
+            AudioController.getInstance().playMusic("backgroundMusic");
         }
 
         batch = new SpriteBatch();
         player = new Player();
         cameraController = new CameraController(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        crosshair = new Crosshair(); // Initialize the crosshair
         scoreDisplay = new ScoreDisplay();
-        enemyManager = new EnemyManager(scoreDisplay); // Pass scoreDisplay to EnemyManager
+        enemyManager = new EnemyManager(scoreDisplay);
         map = new Map();
+
+        // Hide the system cursor since we're using our own
+        Gdx.input.setCursorCatched(true);
 
         // Set up input processor
         Gdx.input.setInputProcessor(this);
@@ -65,13 +70,11 @@ public class StartGame extends InputAdapter implements Screen {
         }
         ScreenUtils.clear(0, 198, 10, 0);
 
-        // Get mouse position for aiming (since crosshair is removed)
-        float mouseX = Gdx.input.getX();
-        float mouseY = Gdx.input.getY();
-        Vector2 mousePos = cameraController.screenToWorld(mouseX, mouseY);
+        // Update crosshair
+        crosshair.update(cameraController);
 
-        // Pass camera controller and mouse position to player
-        player.update(delta, cameraController, mousePos, map);
+        // Pass camera controller and crosshair position to player
+        player.update(delta, cameraController, crosshair.getPosition(), map);
 
         cameraController.update(player.getPosition(), delta);
         enemyManager.update(delta, player.getPosition(), player.getWeapon(), player);
@@ -87,6 +90,7 @@ public class StartGame extends InputAdapter implements Screen {
         player.draw(batch);
         map.drawTreeCrowns(batch);
         enemyManager.draw(batch);
+        crosshair.draw(batch); // Draw the crosshair
         map.expandMapIfNeeded(player.getPosition());
         batch.end();
 
@@ -104,7 +108,10 @@ public class StartGame extends InputAdapter implements Screen {
     public void resume() {}
 
     @Override
-    public void hide() {}
+    public void hide() {
+        // Show the system cursor again when leaving the screen
+        Gdx.input.setCursorCatched(false);
+    }
 
     @Override
     public void dispose() {
@@ -113,6 +120,9 @@ public class StartGame extends InputAdapter implements Screen {
         enemyManager.dispose();
         map.dispose();
         scoreDisplay.dispose();
-        bgMusic.dispose();
+        crosshair.dispose(); // Dispose the crosshair
+
+        // Show the system cursor again
+        Gdx.input.setCursorCatched(false);
     }
 }

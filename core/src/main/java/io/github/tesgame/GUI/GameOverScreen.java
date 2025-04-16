@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.audio.Sound;
+import io.github.tesgame.Controller.AudioController;
 import io.github.tesgame.Main;
 import io.github.tesgame.StartGame;
 import io.github.tesgame.Highscore.HighscoreManager;
@@ -182,6 +183,7 @@ public class GameOverScreen implements Screen {
 
 
     private void startNewGame() {
+        AudioController.getInstance().stopMusic("backgroundMusic");
         game.setScreen(new StartGame(true)); // Annahme: GameScreen existiert
         dispose();
     }
