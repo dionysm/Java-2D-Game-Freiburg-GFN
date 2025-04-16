@@ -8,12 +8,24 @@ import java.util.List;
 
 public class HighscoreManager {
 
+    private static HighscoreManager instance;
+
     private static final String DB_URL = "jdbc:sqlite:highscores.db";
 
-    public HighscoreManager() {
+    // Private Konstruktor verhindert direkte Instanziierung
+    private HighscoreManager() {
         createTableIfNotExists();
     }
 
+    // Singleton-Zugriffsmethode
+    public static HighscoreManager getInstance() {
+        if (instance == null) {
+            instance = new HighscoreManager();
+        }
+        return instance;
+    }
+
+    // Tabelle erstellen, falls sie nicht existiert
     private void createTableIfNotExists() {
         String sql = "CREATE TABLE IF NOT EXISTS highscores (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -31,6 +43,7 @@ public class HighscoreManager {
         }
     }
 
+    // Highscore speichern
     public void saveHighscore(String name, int score) {
         String sql = "INSERT INTO highscores (name, score, timestamp) VALUES (?, ?, ?)";
 
@@ -52,6 +65,7 @@ public class HighscoreManager {
         }
     }
 
+    // Prüfen, ob der Score in die Top 10 kommt
     public boolean qualifiesForTop10(int score) {
         String sql = "SELECT score FROM highscores ORDER BY score DESC LIMIT 10";
         List<Integer> topScores = new ArrayList<>();
@@ -73,8 +87,7 @@ public class HighscoreManager {
         return topScores.size() < 10 || score > topScores.get(topScores.size() - 1);
     }
 
-    //Zugriff auf Highscore aus Menü
-
+    // Top 10 Highscores abrufen
     public List<String> getTop10Highscores() {
         String sql = "SELECT name, score, timestamp FROM highscores ORDER BY score DESC LIMIT 10";
         List<String> highscores = new ArrayList<>();

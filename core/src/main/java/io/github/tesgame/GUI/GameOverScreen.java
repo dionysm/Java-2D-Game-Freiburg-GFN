@@ -19,10 +19,12 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.audio.Sound;
 import io.github.tesgame.Main;
 import io.github.tesgame.StartGame;
+import io.github.tesgame.Highscore.HighscoreManager;
 
 public class GameOverScreen implements Screen {
 
     private final Main game;
+    private final int finalScore;
     private SpriteBatch batch;
     private BitmapFont font;
     private GlyphLayout glyphLayout;
@@ -31,10 +33,23 @@ public class GameOverScreen implements Screen {
     private TextButton menuButton;
     private Sound gameOverSound;
     private boolean soundPlayed = false;
+    private boolean highscoreSaved = false;
     private final String message = "GAME OVER";
 
-    public GameOverScreen(Main game) {
+    public GameOverScreen(Main game, int finalScore) {
         this.game = game;
+        this.finalScore = finalScore;
+
+
+        try {
+            System.out.println("Initialisiere GameOverScreen...");
+            HighscoreManager.getInstance().saveHighscore("Spieler", finalScore);
+            System.out.println("Highscore gespeichert.");
+        } catch (Exception e) {
+            System.out.println("Fehler beim Initialisieren des GameOverScreens:");
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -117,12 +132,26 @@ public class GameOverScreen implements Screen {
             soundPlayed = true;
         }
 
+        // Highscore speichern
+        /* if (!highscoreSaved) {
+            HighscoreManager.getInstance().saveHighscore("Spieler", finalScore); // Spielername ggf. anpassen
+            highscoreSaved = true;
+        } */
+
         // "GAME OVER" Text zeichnen
         batch.begin();
         font.setColor(1, 0.2f, 0.2f, 1); // Roter Text
         float textX = Gdx.graphics.getWidth()/2f - glyphLayout.width/2f;
         float textY = Gdx.graphics.getHeight() - 100f;
         font.draw(batch, message, textX, textY);
+
+        // Score anzeigen
+        font.getData().setScale(2);
+        String scoreText = "SCORE: " + finalScore;
+        float scoreWidth = new GlyphLayout(font, scoreText).width;
+        font.setColor(1, 1, 1, 1);
+        font.draw(batch, scoreText, (Gdx.graphics.getWidth() - scoreWidth) / 2f, textY - 80f);
+        font.getData().setScale(4);
         batch.end();
 
         // UI aktualisieren und zeichnen
