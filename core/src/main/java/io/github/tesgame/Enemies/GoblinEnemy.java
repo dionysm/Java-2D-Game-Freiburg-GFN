@@ -1,9 +1,6 @@
 package io.github.tesgame.Enemies;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import io.github.tesgame.Combat.AOEEffect;
@@ -13,12 +10,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class GoblinEnemy extends Enemy {
-    private static final int FRAME_COLS = 4;
-    private static final int FRAME_ROWS = 4;
     private ArrayList<AOEEffect> aoeEffects;
     private float aoeAttackCooldown = 3f; // Separate cooldown for AOE attack
     private float aoeAttackTimer = 0f;
-    private float aoeChance = 0.8f; // 40% chance to use AOE attack when in range
+    private float aoeChance = 0.8f; // 80% chance to use AOE attack when in range
 
     // For player movement prediction
     private Vector2 lastPlayerPosition = new Vector2();
@@ -27,54 +22,11 @@ public class GoblinEnemy extends Enemy {
     private float predictionTime = 1.0f; // How far ahead to predict (seconds)
 
     public GoblinEnemy(float x, float y) {
-        super(x, y, 60f, 3); // Speed: 60 (faster), Health: 3 (weaker)
+        super(x, y, 60f, 3, "sprites/chars/Walk-Enemy2.png", 4, 4);
         attackRange = 50f;
         attackCooldown = 2f; // Short cooldown
         isMeleeAttacker = true;
         aoeEffects = new ArrayList<>();
-    }
-
-    @Override
-    protected void loadSprites() {
-        // Lade das SpriteSheet für den Orc
-        spriteSheet = new Texture("sprites/chars/Walk-Enemy2.png");
-
-        // Setze das SpriteSheet in Frames um
-        TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
-            spriteSheet.getWidth() / FRAME_COLS,
-            spriteSheet.getHeight() / FRAME_ROWS);
-
-        // Erstelle Animationen
-        animations = new java.util.HashMap<>();
-
-        // Animationen für die Bewegungsrichtungen
-        for (int col = 0; col < FRAME_COLS; col++) {  // Zeilenweise Animation, nach Spalten
-            TextureRegion[] directionFrames = new TextureRegion[FRAME_ROWS];
-            for (int row = 0; row < FRAME_ROWS; row++) {
-                directionFrames[row] = tmp[row][col];  // Zeilenwerte, die zu einer Richtung gehören
-            }
-
-            Animation<TextureRegion> dirAnimation = new Animation<>(0.15f, directionFrames);
-
-            // Die Animationen den Richtungen zuordnen
-            switch (col) {
-                case 0:
-                    animations.put(Direction.DOWN, dirAnimation);
-                    break;
-                case 1:
-                    animations.put(Direction.UP, dirAnimation);
-                    break;
-                case 2:
-                    animations.put(Direction.LEFT, dirAnimation);
-                    break;
-                case 3:
-                    animations.put(Direction.RIGHT, dirAnimation);
-                    break;
-            }
-        }
-
-        width = tmp[0][0].getRegionWidth();
-        height = tmp[0][0].getRegionHeight();
     }
 
     @Override

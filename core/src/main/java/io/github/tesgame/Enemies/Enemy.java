@@ -13,8 +13,8 @@ import com.badlogic.gdx.math.Vector2;
 import io.github.tesgame.Player;
 import io.github.tesgame.Combat.Projectile;
 
-
 import java.util.Map;
+import java.util.HashMap;
 
 public abstract class Enemy {
     protected Vector2 position;
@@ -38,13 +38,15 @@ public abstract class Enemy {
     protected Map<Direction, Animation<TextureRegion>> animations;
     protected float stateTime = 0f;
     protected float width, height;
+    protected int FRAME_COLS;
+    protected int FRAME_ROWS;
+    protected String spriteSheetPath;
+    protected float animationSpeed = 0.15f;
 
     // Health bar
     protected float healthBarWidth = 40;
     protected float healthBarHeight = 5;
     protected float healthBarOffsetY = 5;
-    // SFX
-    //protected Sound deathSoundFX;
 
     // Direction
     public enum Direction {
@@ -55,20 +57,62 @@ public abstract class Enemy {
     // Sound
     protected static final Sound deathSoundFX = Gdx.audio.newSound(Gdx.files.internal("sfx/EnemyDead.wav"));
 
-    public Enemy(float x, float y, float speed, int maxHealth) {
+    public Enemy(float x, float y, float speed, int maxHealth, String spriteSheetPath, int frameCols, int frameRows) {
         this.position = new Vector2(x, y);
         this.velocity = new Vector2(0, 0);
         this.speed = speed;
         this.maxHealth = maxHealth;
         this.health = maxHealth;
         this.shapeRenderer = new ShapeRenderer();
-        //this.deathSoundFX = Gdx.audio.newSound(Gdx.files.internal("sfx/EnemyDead.ogg"));
+        this.spriteSheetPath = spriteSheetPath;
+        this.FRAME_COLS = frameCols;
+        this.FRAME_ROWS = frameRows;
 
-        loadSprites(); // Implemented by subclasses
+        loadSprites(); // Load sprites with default implementation
     }
 
-    // Abstract methods to be implemented by subclasses
-    protected abstract void loadSprites();
+    protected void loadSprites() {
+        spriteSheet = new Texture(spriteSheetPath);
+
+        // Split the sprite sheet into frames
+        TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
+            spriteSheet.getWidth() / FRAME_COLS,
+            spriteSheet.getHeight() / FRAME_ROWS);
+
+        // Create animations
+        animations = new HashMap<>();
+
+        // Animations for movement directions - standard layout
+        for (int col = 0; col < FRAME_COLS; col++) {
+            TextureRegion[] directionFrames = new TextureRegion[FRAME_ROWS];
+            for (int row = 0; row < FRAME_ROWS; row++) {
+                directionFrames[row] = tmp[row][col];
+            }
+
+            Animation<TextureRegion> dirAnimation = new Animation<>(animationSpeed, directionFrames);
+
+            // Map animations to directions (standard layout)
+            switch (col) {
+                case 0:
+                    animations.put(Direction.DOWN, dirAnimation);
+                    break;
+                case 1:
+                    animations.put(Direction.UP, dirAnimation);
+                    break;
+                case 2:
+                    animations.put(Direction.LEFT, dirAnimation);
+                    break;
+                case 3:
+                    animations.put(Direction.RIGHT, dirAnimation);
+                    break;
+            }
+        }
+
+        width = tmp[0][0].getRegionWidth();
+        height = tmp[0][0].getRegionHeight();
+    }
+
+    // Abstract method to be implemented by subclasses
     protected abstract void performAttack(Player player);
 
     public void update(float delta, Vector2 playerPosition, Player player) {
@@ -79,7 +123,7 @@ public abstract class Enemy {
 
         float distanceToPlayer = position.dst(playerPosition);
 
-        // Angriff starten
+        // Start attack
         if (distanceToPlayer <= attackRange && attackTimer >= attackCooldown) {
             isAttacking = true;
             attackTimer = 0;
@@ -87,7 +131,7 @@ public abstract class Enemy {
             performAttack(player);
         }
 
-        // Bewegung (wenn erlaubt)
+        // Movement (if allowed)
         Vector2 direction = new Vector2(
             playerPosition.x - position.x,
             playerPosition.y - position.y
@@ -98,14 +142,14 @@ public abstract class Enemy {
             position.add(velocity.x * delta, velocity.y * delta);
         }
 
-        // Richtung für Animation
+        // Direction for animation
         if (Math.abs(direction.x) > Math.abs(direction.y)) {
             currentDirection = (direction.x > 0) ? Direction.RIGHT : Direction.LEFT;
         } else {
             currentDirection = (direction.y > 0) ? Direction.UP : Direction.DOWN;
         }
 
-        // Angriff beenden (für Nahkampf)
+        // End attack (for melee)
         if (isAttacking && isMeleeAttacker && stateTime > 0.5f) {
             isAttacking = false;
         }
@@ -168,12 +212,9 @@ public abstract class Enemy {
     }
 
     public void takeDamage(int damage) {
-
-
         health -= damage;
         if (health <= 0) {
             isDead = true;
-            //playsound
             deathSoundFX.play();
             dispose();
         }

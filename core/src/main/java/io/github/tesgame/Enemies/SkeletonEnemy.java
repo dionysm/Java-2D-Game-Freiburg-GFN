@@ -1,9 +1,6 @@
 package io.github.tesgame.Enemies;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import io.github.tesgame.Player;
 
@@ -11,57 +8,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class SkeletonEnemy extends Enemy {
-    private static final int FRAME_COLS = 4;
-    private static final int FRAME_ROWS = 4;
     private ArrayList<EnemyProjectile> projectiles;
 
     public SkeletonEnemy(float x, float y) {
-        super(x, y, 60f, 5); // Speed: 60, Health: 5
+        super(x, y, 60f, 5, "sprites/chars/Skeleton-Walk.png", 4, 4);
         attackRange = Float.MAX_VALUE; // Can attack from far away
         attackCooldown = 4f; // 4 second cooldown
         isRangedAttacker = true;
         projectiles = new ArrayList<>();
-    }
-
-    @Override
-    protected void loadSprites() {
-        spriteSheet = new Texture("sprites/chars/Skeleton-Walk.png");
-
-        // Hier ändern wir die Berechnungen, damit wir die Zeilen (für Richtungen) und Spalten (für Animationen) richtig trennen
-        TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
-            spriteSheet.getWidth() / FRAME_COLS,  // Jede Frame-Spalte
-            spriteSheet.getHeight() / FRAME_ROWS); // Jede Frame-Reihe
-
-        animations = new java.util.HashMap<>();
-
-        // Für jede Richtung eine eigene Animation aus der jeweiligen Spalte erstellen
-        for (int col = 0; col < FRAME_COLS; col++) {  // Zeilenweise Animation, nach Spalten
-            TextureRegion[] directionFrames = new TextureRegion[FRAME_ROWS];
-            for (int row = 0; row < FRAME_ROWS; row++) {
-                directionFrames[row] = tmp[row][col];  // Zeilenwerte, die zu einer Richtung gehören
-            }
-
-            Animation<TextureRegion> dirAnimation = new Animation<>(0.15f, directionFrames);
-
-            // Die Animationen den Richtungen zuordnen
-            switch (col) {
-                case 0:
-                    animations.put(Direction.DOWN, dirAnimation);
-                    break;
-                case 1:
-                    animations.put(Direction.UP, dirAnimation);
-                    break;
-                case 2:
-                    animations.put(Direction.LEFT, dirAnimation);
-                    break;
-                case 3:
-                    animations.put(Direction.RIGHT, dirAnimation);
-                    break;
-            }
-        }
-
-        width = tmp[0][0].getRegionWidth();
-        height = tmp[0][0].getRegionHeight();
     }
 
     @Override
