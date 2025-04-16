@@ -16,34 +16,50 @@ public class SkeletonEnemy extends Enemy {
     private ArrayList<EnemyProjectile> projectiles;
 
     public SkeletonEnemy(float x, float y) {
-        super(x, y, 60f, 5); // Speed: 40, Health: 5
+        super(x, y, 60f, 5); // Speed: 60, Health: 5
         attackRange = Float.MAX_VALUE; // Can attack from far away
-        attackCooldown = 4f; // 5 second cooldown
+        attackCooldown = 4f; // 4 second cooldown
         isRangedAttacker = true;
         projectiles = new ArrayList<>();
     }
 
     @Override
     protected void loadSprites() {
-        // Load enemy sprite sheet
         spriteSheet = new Texture("sprites/chars/Skeleton-Walk.png");
 
-        // Set up animation with the 4x4 sprite sheet
+        // Hier ändern wir die Berechnungen, damit wir die Zeilen (für Richtungen) und Spalten (für Animationen) richtig trennen
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
-            spriteSheet.getWidth() / FRAME_COLS,
-            spriteSheet.getHeight() / FRAME_ROWS);
+            spriteSheet.getWidth() / FRAME_COLS,  // Jede Frame-Spalte
+            spriteSheet.getHeight() / FRAME_ROWS); // Jede Frame-Reihe
 
-        // Create animation frames (using the first row for walking animation)
-        TextureRegion[] frames = new TextureRegion[FRAME_COLS];
-        for (int i = 0; i < FRAME_COLS; i++) {
+        animations = new java.util.HashMap<>();
 
-            // TODO: NEED TO ADD directional rendering, right now they spin in a circle
-            frames[i] = tmp[i][0]; // Using first row (index 0)
+        // Für jede Richtung eine eigene Animation aus der jeweiligen Spalte erstellen
+        for (int col = 0; col < FRAME_COLS; col++) {  // Zeilenweise Animation, nach Spalten
+            TextureRegion[] directionFrames = new TextureRegion[FRAME_ROWS];
+            for (int row = 0; row < FRAME_ROWS; row++) {
+                directionFrames[row] = tmp[row][col];  // Zeilenwerte, die zu einer Richtung gehören
+            }
+
+            Animation<TextureRegion> dirAnimation = new Animation<>(0.15f, directionFrames);
+
+            // Die Animationen den Richtungen zuordnen
+            switch (col) {
+                case 0:
+                    animations.put(Direction.DOWN, dirAnimation);
+                    break;
+                case 1:
+                    animations.put(Direction.UP, dirAnimation);
+                    break;
+                case 2:
+                    animations.put(Direction.LEFT, dirAnimation);
+                    break;
+                case 3:
+                    animations.put(Direction.RIGHT, dirAnimation);
+                    break;
+            }
         }
 
-        animation = new Animation<>(0.15f, frames);
-
-        // Set dimensions - scale down if needed
         width = tmp[0][0].getRegionWidth();
         height = tmp[0][0].getRegionHeight();
     }

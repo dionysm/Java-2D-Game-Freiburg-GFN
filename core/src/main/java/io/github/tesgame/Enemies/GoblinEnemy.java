@@ -36,23 +36,43 @@ public class GoblinEnemy extends Enemy {
 
     @Override
     protected void loadSprites() {
-        // Load enemy sprite sheet
+        // Lade das SpriteSheet für den Orc
         spriteSheet = new Texture("sprites/chars/Walk-Enemy2.png");
 
-        // Set up animation with the sprite sheet
+        // Setze das SpriteSheet in Frames um
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
             spriteSheet.getWidth() / FRAME_COLS,
             spriteSheet.getHeight() / FRAME_ROWS);
 
-        // Create animation frames (using the first row for walking animation)
-        TextureRegion[] frames = new TextureRegion[FRAME_COLS];
-        for (int i = 0; i < FRAME_COLS; i++) {
-            frames[i] = tmp[0][i]; // Using first row (index 0)
+        // Erstelle Animationen
+        animations = new java.util.HashMap<>();
+
+        // Animationen für die Bewegungsrichtungen
+        for (int col = 0; col < FRAME_COLS; col++) {  // Zeilenweise Animation, nach Spalten
+            TextureRegion[] directionFrames = new TextureRegion[FRAME_ROWS];
+            for (int row = 0; row < FRAME_ROWS; row++) {
+                directionFrames[row] = tmp[row][col];  // Zeilenwerte, die zu einer Richtung gehören
+            }
+
+            Animation<TextureRegion> dirAnimation = new Animation<>(0.15f, directionFrames);
+
+            // Die Animationen den Richtungen zuordnen
+            switch (col) {
+                case 0:
+                    animations.put(Direction.DOWN, dirAnimation);
+                    break;
+                case 1:
+                    animations.put(Direction.UP, dirAnimation);
+                    break;
+                case 2:
+                    animations.put(Direction.LEFT, dirAnimation);
+                    break;
+                case 3:
+                    animations.put(Direction.RIGHT, dirAnimation);
+                    break;
+            }
         }
 
-        animation = new Animation<>(0.15f, frames);
-
-        // Set dimensions
         width = tmp[0][0].getRegionWidth();
         height = tmp[0][0].getRegionHeight();
     }

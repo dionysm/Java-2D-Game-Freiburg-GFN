@@ -13,6 +13,8 @@ import com.badlogic.gdx.math.Vector2;
 import io.github.tesgame.Player;
 import io.github.tesgame.Combat.Projectile;
 
+import java.util.Map;
+
 public abstract class Enemy {
     protected Vector2 position;
     protected Vector2 velocity;
@@ -30,78 +32,76 @@ public abstract class Enemy {
     protected float attackTimer = 0f;
     protected boolean isAttacking = false;
 
-    // For animation
+    // Animation
     protected Texture spriteSheet;
-    protected Animation<TextureRegion> animation;
-    protected float stateTime = 0;
+    protected Map<Direction, Animation<TextureRegion>> animations;
+    protected float stateTime = 0f;
     protected float width, height;
 
-    // Health bar dimensions
+    // Health bar
     protected float healthBarWidth = 40;
     protected float healthBarHeight = 5;
-    protected float healthBarOffsetY = 5; // Distance above enemy
+    protected float healthBarOffsetY = 5;
 
-    // Animation constants based on the sprite sheet
-    private static final int FRAME_COLS = 4;
-    private static final int FRAME_ROWS = 4;
+    // Direction
+    public enum Direction {
+        UP, DOWN, LEFT, RIGHT
+    }
+    protected Direction currentDirection = Direction.DOWN;
 
-
-    // SOUNDS
-    Sound hitSound = Gdx.audio.newSound(Gdx.files.internal("sfx/Impact.wav"));
+    // Sound
+    protected static final Sound hitSound = Gdx.audio.newSound(Gdx.files.internal("sfx/Impact.wav"));
 
     public Enemy(float x, float y, float speed, int maxHealth) {
-        position = new Vector2(x, y);
-        velocity = new Vector2(0, 0);
+        this.position = new Vector2(x, y);
+        this.velocity = new Vector2(0, 0);
         this.speed = speed;
         this.maxHealth = maxHealth;
         this.health = maxHealth;
-        shapeRenderer = new ShapeRenderer();
+        this.shapeRenderer = new ShapeRenderer();
 
-        // Load sprites and set up animations (implemented by subclasses)
-        loadSprites();
+        loadSprites(); // Implemented by subclasses
     }
 
-    // Abstract method to be implemented by each enemy type
+    // Abstract methods to be implemented by subclasses
     protected abstract void loadSprites();
-
-    // Abstract attack method for enemy types to implement
     protected abstract void performAttack(Player player);
 
     public void update(float delta, Vector2 playerPosition, Player player) {
         if (isDead) return;
 
-        // Update animation time
         stateTime += delta;
-
-        // Update attack timer
         attackTimer += delta;
 
-        // Calculate distance to player
         float distanceToPlayer = position.dst(playerPosition);
 
-        // Attack logic
+        // Angriff starten
         if (distanceToPlayer <= attackRange && attackTimer >= attackCooldown) {
-            // Start attack
             isAttacking = true;
             attackTimer = 0;
-            stateTime = 0; // Reset animation time for attack animation
-
-            // Perform the attack based on enemy type
+            stateTime = 0;
             performAttack(player);
         }
 
-        // Normal movement logic if not attacking or if ranged attacker (can move while attacking)
-        if (!isAttacking || isRangedAttacker) {
-            Vector2 direction = new Vector2(
-                playerPosition.x - position.x,
-                playerPosition.y - position.y
-            ).nor();
+        // Bewegung (wenn erlaubt)
+        Vector2 direction = new Vector2(
+            playerPosition.x - position.x,
+            playerPosition.y - position.y
+        ).nor();
 
+        if (!isAttacking || isRangedAttacker) {
             velocity.set(direction.x * speed, direction.y * speed);
             position.add(velocity.x * delta, velocity.y * delta);
         }
 
-        // Reset attack state after a short time (for melee attackers)
+        // Richtung für Animation
+        if (Math.abs(direction.x) > Math.abs(direction.y)) {
+            currentDirection = (direction.x > 0) ? Direction.RIGHT : Direction.LEFT;
+        } else {
+            currentDirection = (direction.y > 0) ? Direction.UP : Direction.DOWN;
+        }
+
+        // Angriff beenden (für Nahkampf)
         if (isAttacking && isMeleeAttacker && stateTime > 0.5f) {
             isAttacking = false;
         }
@@ -110,62 +110,53 @@ public abstract class Enemy {
     public void draw(SpriteBatch batch) {
         if (isDead) return;
 
-        // Get current frame
-        TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
+        TextureRegion currentFrame = animations != null
+            ? animations.get(currentDirection).getKeyFrame(stateTime, true)
+            : null;
 
-        // Draw centered at position
-        batch.draw(currentFrame, position.x - width/2, position.y - height/2);
-
-        // Draw the health bar
+        if (currentFrame != null) {
+            batch.draw(currentFrame, position.x - width / 2, position.y - height / 2);
+        }
         drawHealthBar(batch);
     }
 
     private void drawHealthBar(SpriteBatch batch) {
-        // We need to end the SpriteBatch before using ShapeRenderer
         batch.end();
 
-        // Calculate health bar position
         float barX = position.x - healthBarWidth / 2;
         float barY = position.y + height / 2 + healthBarOffsetY;
 
-        // Set projection matrix to match batch
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-
-        // Draw health bar background (gray)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
         shapeRenderer.setColor(Color.DARK_GRAY);
         shapeRenderer.rect(barX, barY, healthBarWidth, healthBarHeight);
 
-        // Calculate current health width
-        float currentHealthWidth = (float)health / maxHealth * healthBarWidth;
+        float currentHealthWidth = (float) health / maxHealth * healthBarWidth;
 
-        // Set color based on health level
-        if (health > (int)(maxHealth * 0.6f)) {
+        if (health > maxHealth * 0.6f) {
             shapeRenderer.setColor(Color.GREEN);
-        } else if (health > (int)(maxHealth * 0.2f)) {
+        } else if (health > maxHealth * 0.2f) {
             shapeRenderer.setColor(Color.YELLOW);
         } else {
             shapeRenderer.setColor(Color.RED);
         }
 
-        // Draw current health
         shapeRenderer.rect(barX, barY, currentHealthWidth, healthBarHeight);
         shapeRenderer.end();
 
-        // Resume the SpriteBatch
         batch.begin();
     }
 
     public boolean checkCollision(Projectile projectile) {
-        // Simple rectangle-based collision detection
         Rectangle enemyRect = new Rectangle(
-            position.x - width/2, position.y - height/2,
+            position.x - width / 2, position.y - height / 2,
             width, height
         );
 
         Rectangle projectileRect = new Rectangle(
-            projectile.getPosition().x - projectile.getWidth()/2,
-            projectile.getPosition().y - projectile.getHeight()/2,
+            projectile.getPosition().x - projectile.getWidth() / 2,
+            projectile.getPosition().y - projectile.getHeight() / 2,
             projectile.getWidth(), projectile.getHeight()
         );
 
@@ -174,9 +165,10 @@ public abstract class Enemy {
 
     public void takeDamage(int damage) {
         hitSound.play();
-        health -= 1; // Each hit takes 1 health point
+        health -= damage;
         if (health <= 0) {
             isDead = true;
+            dispose();
         }
     }
 
@@ -189,7 +181,7 @@ public abstract class Enemy {
     }
 
     public void dispose() {
-        spriteSheet.dispose();
-        shapeRenderer.dispose();
+        if (spriteSheet != null) spriteSheet.dispose();
+        if (shapeRenderer != null) shapeRenderer.dispose();
     }
 }
