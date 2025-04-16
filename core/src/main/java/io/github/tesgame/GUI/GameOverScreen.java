@@ -38,6 +38,9 @@ public class GameOverScreen implements Screen {
     private final String message = "GAME OVER";
 
     public GameOverScreen(Main game, int finalScore) {
+        AudioController.getInstance().stopMusic("backgroundMusic");
+        AudioController.getInstance().loadMusic("GameOver", "GameOver.ogg");
+        AudioController.getInstance().playMusic("GameOver");
         this.game = game;
         this.finalScore = finalScore;
 
@@ -183,12 +186,13 @@ public class GameOverScreen implements Screen {
 
 
     private void startNewGame() {
-        AudioController.getInstance().stopMusic("backgroundMusic");
+        AudioController.getInstance().stopMusic("GameOver");
         game.setScreen(new StartGame(true)); // Annahme: GameScreen existiert
         dispose();
     }
 
     private void returnToMainMenu() {
+        AudioController.getInstance().stopMusic("GameOver");
         game.setScreen(new MainMenu(game));
         dispose();
     }
