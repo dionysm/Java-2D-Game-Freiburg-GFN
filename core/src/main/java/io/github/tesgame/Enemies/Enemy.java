@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import io.github.tesgame.Player;
 import io.github.tesgame.Combat.Projectile;
 
+
 import java.util.Map;
 
 public abstract class Enemy {
@@ -42,6 +43,8 @@ public abstract class Enemy {
     protected float healthBarWidth = 40;
     protected float healthBarHeight = 5;
     protected float healthBarOffsetY = 5;
+    // SFX
+    //protected Sound deathSoundFX;
 
     // Direction
     public enum Direction {
@@ -50,7 +53,7 @@ public abstract class Enemy {
     protected Direction currentDirection = Direction.DOWN;
 
     // Sound
-    protected static final Sound hitSound = Gdx.audio.newSound(Gdx.files.internal("sfx/Impact.wav"));
+    protected static final Sound deathSoundFX = Gdx.audio.newSound(Gdx.files.internal("sfx/EnemyDead.wav"));
 
     public Enemy(float x, float y, float speed, int maxHealth) {
         this.position = new Vector2(x, y);
@@ -59,6 +62,7 @@ public abstract class Enemy {
         this.maxHealth = maxHealth;
         this.health = maxHealth;
         this.shapeRenderer = new ShapeRenderer();
+        //this.deathSoundFX = Gdx.audio.newSound(Gdx.files.internal("sfx/EnemyDead.ogg"));
 
         loadSprites(); // Implemented by subclasses
     }
@@ -164,10 +168,13 @@ public abstract class Enemy {
     }
 
     public void takeDamage(int damage) {
-        hitSound.play();
+
+
         health -= damage;
         if (health <= 0) {
             isDead = true;
+            //playsound
+            deathSoundFX.play();
             dispose();
         }
     }

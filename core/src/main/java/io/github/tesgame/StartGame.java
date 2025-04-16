@@ -40,7 +40,7 @@ public class StartGame extends InputAdapter implements Screen {
     public void show() {
         if (musicOn){
             bgMusic = Gdx.audio.newSound(Gdx.files.internal("sfx/FinalArea.ogg"));
-            bgMusic.play();
+            bgMusic.play(0.2f);
         }
 
         batch = new SpriteBatch();

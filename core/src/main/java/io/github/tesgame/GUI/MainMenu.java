@@ -5,13 +5,15 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.Game;
 import io.github.tesgame.Highscore.HighscoreScreen;
 import io.github.tesgame.StartGame;
+import com.badlogic.gdx.audio.Sound;
 
 public class MainMenu implements Screen {
     Game game;
     SpriteBatch batch;
     Texture bg;
     BitmapFont font;
-
+    Sound cursorSFX =  Gdx.audio.newSound(Gdx.files.internal("sfx/MenuMove.wav"));
+    float sfxVolume = 0.2f;
     // Menüinhalte
     String[] mainMenu = {"Start Game", "Highscore", "Settings", "Exit"};
     String[] settingsMenu = {"Music ON", "Music OFF", "Back"};
@@ -35,9 +37,11 @@ public class MainMenu implements Screen {
             public boolean keyDown(int keycode) {
                 // Menü-Auswahl bewegen
                 if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
+                    cursorSFX.play(sfxVolume);
                     selected = (selected + 1) % currentMenu().length;
                 }
                 if (keycode == Input.Keys.UP || keycode == Input.Keys.W) {
+                    cursorSFX.play(sfxVolume);
                     selected = (selected - 1 + currentMenu().length) % currentMenu().length;
                 }
 
