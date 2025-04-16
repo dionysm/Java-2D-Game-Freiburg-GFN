@@ -79,6 +79,11 @@ public class Map {
         return trees.isColliding(playerBounds);
     }
 
+    // Add a getter for the Trees object
+    public Trees getTrees() {
+        return trees;
+    }
+
     public void dispose() {
         if (spriteSheet != null) {
             spriteSheet.dispose();
