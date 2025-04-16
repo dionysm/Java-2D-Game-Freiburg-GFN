@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import io.github.tesgame.Combat.Projectile;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -73,6 +74,27 @@ public class Trees {
             }
         }
         return false;
+    }
+
+    /**
+     * Checks if a projectile collides with any tree.
+     * Only player projectiles will be blocked by trees.
+     *
+     * @param projectile The projectile to check for collision
+     * @return true if a collision occurred, false otherwise
+     */
+    public boolean checkProjectileCollision(Projectile projectile) {
+        // Only check collision for player projectiles
+        if (projectile.isPlayerProjectile()) {
+            Rectangle projectileBounds = projectile.getBounds();
+
+            for (Rectangle treeCollider : treeColliders) {
+                if (treeCollider.overlaps(projectileBounds)) {
+                    return true; // Collision detected
+                }
+            }
+        }
+        return false; // No collision or enemy projectile (which passes through trees)
     }
 
     public void clear() {

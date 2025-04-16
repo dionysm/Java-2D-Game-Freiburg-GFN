@@ -201,8 +201,12 @@ public class Player {
             }
         }
 
-        // Update weapon with crosshair position
-        weapon.update(delta, x + width/2, y + height/2, crosshairPosition);
+        // Update weapon with crosshair position and trees for collision
+        if (map != null) {
+            weapon.update(delta, x + width/2, y + height/2, crosshairPosition, map.getTrees());
+        } else {
+            weapon.update(delta, x + width/2, y + height/2, crosshairPosition);
+        }
     }
 
     public void draw(SpriteBatch batch) {
