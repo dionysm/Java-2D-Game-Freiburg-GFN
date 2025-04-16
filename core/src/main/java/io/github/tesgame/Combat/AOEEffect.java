@@ -13,9 +13,9 @@ public class AOEEffect {
     private Texture texture;
     private float duration;
     private float currentTime = 0;
-    private float damageInterval = 1.0f; // Damage every half second
+    private float damageInterval = 0.5f; // Damage every half second
     private float lastDamageTime = 0;
-    private int damage = 2;
+    private int damage = 1;
 
     public AOEEffect(float x, float y, float radius, float duration) {
         this.position = new Vector2(x, y);

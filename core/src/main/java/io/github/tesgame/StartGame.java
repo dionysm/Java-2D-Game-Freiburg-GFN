@@ -70,7 +70,7 @@ public class StartGame extends InputAdapter implements Screen {
         Vector2 mousePos = cameraController.screenToWorld(mouseX, mouseY);
 
         // Pass camera controller and mouse position to player
-        player.update(delta, cameraController, mousePos);
+        player.update(delta, cameraController, mousePos, map);
 
         cameraController.update(player.getPosition(), delta);
         enemyManager.update(delta, player.getPosition(), player.getWeapon(), player);

@@ -3,9 +3,8 @@ package io.github.tesgame.Environment;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Map {
@@ -15,7 +14,6 @@ public class Map {
     private static final int TILE_HEIGHT = 32;
     private static final int INITIAL_WIDTH = 64;
     private static final int INITIAL_HEIGHT = 36;
-    private final List<Vector2> treePositions = new ArrayList<>();
     private final Texture spriteSheet;
     private final TextureRegion[][] tiles;
     private TextureRegion[][] mapTiles;
@@ -23,7 +21,9 @@ public class Map {
     private int offsetY = 0;
     private int mapWidth = INITIAL_WIDTH;
     private int mapHeight = INITIAL_HEIGHT;
-    // Erlaubte Tilesets TODO: Auto Tile Mapping
+    // Tree management
+    private Trees trees;
+    // Allowed tilesets
     private final int[] allowedTileCols = {0, 1, 2};
     private final int[] allowedTileRows = {2, 3, 4, 5};
 
@@ -31,8 +31,11 @@ public class Map {
         spriteSheet = new Texture("sprites/environment/environment.png");
 
         tiles = TextureRegion.split(spriteSheet,
-                spriteSheet.getWidth() / SPRITESHEET_COLS,
-                spriteSheet.getHeight() / SPRITESHEET_ROWS);
+            spriteSheet.getWidth() / SPRITESHEET_COLS,
+            spriteSheet.getHeight() / SPRITESHEET_ROWS);
+
+        // Initialize trees
+        trees = new Trees(tiles);
 
         generateMap();
         offsetX = mapWidth / 2;
@@ -41,12 +44,13 @@ public class Map {
 
     private void generateMap() {
         mapTiles = new TextureRegion[mapHeight][mapWidth];
-        treePositions.clear();
+        trees.clear();
 
         for (int y = 0; y < mapHeight; y++) {
             for (int x = 0; x < mapWidth; x++) {
+                // Potentially add a tree
                 if (y < mapHeight - 1 && ThreadLocalRandom.current().nextDouble() < 0.02) {
-                    treePositions.add(new Vector2(x, y));
+                    trees.addTree(x, y, offsetX, offsetY);
                 }
 
                 mapTiles[y][x] = randomTile();
@@ -63,19 +67,16 @@ public class Map {
     }
 
     public void drawTreeStems(SpriteBatch batch) {
-        for (Vector2 pos : treePositions) {
-            int x = (int) pos.x;
-            int y = (int) pos.y;
-            batch.draw(tiles[1][0], (x - offsetX) * TILE_WIDTH, (y - offsetY) * TILE_HEIGHT);
-        }
+        trees.drawTreeStems(batch, offsetX, offsetY);
     }
 
     public void drawTreeCrowns(SpriteBatch batch) {
-        for (Vector2 pos : treePositions) {
-            int x = (int) pos.x;
-            int y = (int) pos.y;
-            batch.draw(tiles[0][0], (x - offsetX) * TILE_WIDTH, ((y + 1) - offsetY) * TILE_HEIGHT);
-        }
+        trees.drawTreeCrowns(batch, offsetX, offsetY);
+    }
+
+    // Check player collision with trees
+    public boolean isCollidingWithTrees(Rectangle playerBounds) {
+        return trees.isColliding(playerBounds);
     }
 
     public void dispose() {
@@ -109,7 +110,7 @@ public class Map {
             newMap[y][mapWidth - 1] = randomTile();
 
             if (y < mapHeight - 1 && ThreadLocalRandom.current().nextDouble() < 0.02) {
-                treePositions.add(new Vector2(mapWidth - 1, y));
+                trees.addTree(mapWidth - 1, y, offsetX, offsetY);
             }
         }
         mapTiles = newMap;
@@ -118,19 +119,19 @@ public class Map {
     private void expandLeft() {
         mapWidth += 1;
         offsetX += 1;
-        for (Vector2 pos : treePositions) {
-            pos.x += 1;
-        }
+        trees.adjustTreePositions(1, 0);
+
         TextureRegion[][] newMap = new TextureRegion[mapHeight][mapWidth];
         for (int y = 0; y < mapHeight; y++) {
             System.arraycopy(mapTiles[y], 0, newMap[y], 1, mapTiles[y].length);
             newMap[y][0] = randomTile();
 
             if (y < mapHeight - 1 && ThreadLocalRandom.current().nextDouble() < 0.02) {
-                treePositions.add(new Vector2(0, y));
+                trees.addTree(0, y, offsetX, offsetY);
             }
         }
         mapTiles = newMap;
+        trees.updateTreePositions(offsetX, offsetY);
     }
 
     private void expandTop() {
@@ -141,7 +142,7 @@ public class Map {
             newMap[mapHeight - 1][x] = randomTile();
 
             if (ThreadLocalRandom.current().nextDouble() < 0.02) {
-                treePositions.add(new Vector2(x, mapHeight - 2));
+                trees.addTree(x, mapHeight - 2, offsetX, offsetY);
             }
         }
         mapTiles = newMap;
@@ -150,9 +151,7 @@ public class Map {
     private void expandBottom() {
         mapHeight += 1;
         offsetY += 1;
-        for (Vector2 pos : treePositions) {
-            pos.y += 1;
-        }
+        trees.adjustTreePositions(0, 1);
 
         TextureRegion[][] newMap = new TextureRegion[mapHeight][mapWidth];
         System.arraycopy(mapTiles, 0, newMap, 1, mapTiles.length);
@@ -160,10 +159,11 @@ public class Map {
             newMap[0][x] = randomTile();
 
             if (ThreadLocalRandom.current().nextDouble() < 0.02) {
-                treePositions.add(new Vector2(x, 0));
+                trees.addTree(x, 0, offsetX, offsetY);
             }
         }
         mapTiles = newMap;
+        trees.updateTreePositions(offsetX, offsetY);
     }
 
     private TextureRegion randomTile() {

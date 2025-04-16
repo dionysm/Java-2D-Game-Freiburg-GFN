@@ -8,10 +8,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import io.github.tesgame.Combat.Weapon;
 import io.github.tesgame.Controller.CameraController;
 import io.github.tesgame.GUI.HeartDisplay;
+import io.github.tesgame.Environment.Map;
 
 public class Player {
     private float x, y;
@@ -26,6 +28,7 @@ public class Player {
     private Animation<TextureRegion> currentAnimation;
     private boolean isMoving;
     private float width, height;
+    private Rectangle collisionBounds;
 
     // Health system
     private int health = 10;
@@ -64,6 +67,9 @@ public class Player {
         width = tmp[0][0].getRegionWidth();
         height = tmp[0][0].getRegionHeight();
 
+        // Create collision bounds slightly smaller than visual size
+        collisionBounds = new Rectangle(x, y, width * 0.7f, height * 0.4f);
+
         // Extracting frames for each direction
         TextureRegion[] downFrames = new TextureRegion[FRAME_ROWS];
         TextureRegion[] leftFrames = new TextureRegion[FRAME_ROWS];
@@ -92,7 +98,7 @@ public class Player {
         heartDisplay = new HeartDisplay();
     }
 
-    public void update(float delta, CameraController cameraController, Vector2 crosshairPosition) {
+    public void update(float delta, CameraController cameraController, Vector2 crosshairPosition, Map map) {
         // Update slow effect timer
         if (isSlowed) {
             slowTimer += delta;
@@ -131,8 +137,55 @@ public class Player {
             direction.nor();
         }
 
-        x += direction.x * speed * delta;
-        y += direction.y * speed * delta;
+        // Calculate potential new position
+        float newX = x + direction.x * speed * delta;
+        float newY = y + direction.y * speed * delta;
+
+        // Update collision bounds for new position
+        // Position the collision box at the bottom portion of the sprite
+        float colliderOffsetX = (width - collisionBounds.width) / 2;
+        float colliderOffsetY = height * 0.1f; // Slight offset from bottom
+
+        // Try moving on both axes
+        Rectangle newBounds = new Rectangle(
+            newX + colliderOffsetX,
+            newY + colliderOffsetY,
+            collisionBounds.width,
+            collisionBounds.height
+        );
+
+        boolean canMove = true;
+
+        // Check for tree collisions if map is provided
+        if (map != null && map.isCollidingWithTrees(newBounds)) {
+            canMove = false;
+
+            // Try moving only on X axis
+            newBounds.x = newX + colliderOffsetX;
+            newBounds.y = y + colliderOffsetY;
+            if (!map.isCollidingWithTrees(newBounds)) {
+                newY = y; // Keep Y the same
+                canMove = true;
+            } else {
+                // Try moving only on Y axis
+                newBounds.x = x + colliderOffsetX;
+                newBounds.y = newY + colliderOffsetY;
+                if (!map.isCollidingWithTrees(newBounds)) {
+                    newX = x; // Keep X the same
+                    canMove = true;
+                }
+            }
+        }
+
+        // Apply movement if allowed
+        if (canMove) {
+            x = newX;
+            y = newY;
+        }
+
+        // Update collision bounds position
+        collisionBounds.x = x + colliderOffsetX;
+        collisionBounds.y = y + colliderOffsetY;
 
         if (isMoving) {
             stateTime += delta;
@@ -170,6 +223,18 @@ public class Player {
 
         // Draw heart display
         heartDisplay.draw(batch, health);
+
+        // Debug: draw collision box
+        /*
+        ShapeRenderer shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+        batch.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(collisionBounds.x, collisionBounds.y, collisionBounds.width, collisionBounds.height);
+        shapeRenderer.end();
+        batch.begin();
+        */
     }
 
     public void takeDamage(int damage) {
@@ -234,6 +299,10 @@ public class Player {
 
     public float getHeight() {
         return height;
+    }
+
+    public Rectangle getCollisionBounds() {
+        return collisionBounds;
     }
 
     public int getHealth() {
