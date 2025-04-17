@@ -11,8 +11,10 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -36,7 +38,10 @@ public class GameOverScreen implements Screen {
     private boolean soundPlayed = false;
     private boolean highscoreSaved = false;
     private final String message = "GAME OVER";
-
+    private TextField nameField;
+    private TextButton submitButton;
+    private Skin skin;
+    private String playerName="Player";
     public GameOverScreen(Main game, int finalScore) {
         AudioController.getInstance().stopMusic("backgroundMusic");
         AudioController.getInstance().loadMusic("GameOver", "GameOver.ogg");
@@ -122,6 +127,51 @@ public class GameOverScreen implements Screen {
         } catch (Exception e) {
             Gdx.app.error("GameOverScreen", "Sound konnte nicht geladen werden", e);
         }
+        // Skin laden
+        skin = new Skin(Gdx.files.internal("db/uiskin.json"));
+
+        // TextField für Namen
+        nameField = new TextField("", skin);
+        nameField.setMessageText("Dein Name");
+        nameField.setSize(400, 60);
+        nameField.setPosition(
+            Gdx.graphics.getWidth()/2f - 200f,
+            Gdx.graphics.getHeight()/2f + 100f
+        );
+
+        // Button zum Speichern des Namens
+        submitButton = new TextButton("Highscore speichern", skin);
+        submitButton.setSize(400, 60);
+        submitButton.setPosition(
+            Gdx.graphics.getWidth()/2f - 200f,
+            Gdx.graphics.getHeight()/2f + 30f
+        );
+
+        // Listener für Speichern-Button
+        submitButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if (!highscoreSaved) {
+                    playerName = nameField.getText().trim().isEmpty() ? "Spieler" : nameField.getText();
+                    saveHighscore();
+                    highscoreSaved = true;
+
+                    // Optional: UI-Elemente entfernen
+                    nameField.remove();
+                    submitButton.remove();
+                }
+                return true;
+            }
+        });
+
+        // Elemente zur Stage hinzufügen
+        stage.addActor(nameField);
+        stage.addActor(submitButton);
+    }
+
+    private void saveHighscore() {
+        HighscoreManager.getInstance().saveHighscore(playerName, finalScore);
+        System.out.println("Highscore gespeichert für: " + playerName);
     }
 
     @Override
