@@ -64,7 +64,7 @@ public class GameOverScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
 
         // Button Farben (Ani-Ton)
-        Color normalColor = new Color(1f, 0.4f, 0.4f, 1f);
+        Color normalColor = new Color(0.4f, 0.6f, 1f, 1f);
         Color pressedColor = new Color(0.8f, 0.2f, 0.2f, 1f);
         Color hoverColor = new Color(1f, 0.6f, 0.6f, 1f);
 
@@ -74,7 +74,7 @@ public class GameOverScreen implements Screen {
 
         // Stil für Buttons
         final BitmapFont buttonFont = new BitmapFont();
-        buttonFont.getData().setScale(2.2f);
+        buttonFont.getData().setScale(2.1f);
 
         TextButtonStyle buttonStyle = new TextButtonStyle();
         buttonStyle.font = buttonFont;
@@ -116,7 +116,7 @@ public class GameOverScreen implements Screen {
 
         // Soundeffekt
         try {
-            gameOverSound = Gdx.audio.newSound(Gdx.files.internal("sfx/gameover.ogg"));
+            gameOverSound = Gdx.audio.newSound(Gdx.files.internal("sfx/gameover-86548.ogg"));
         } catch (Exception e) {
             Gdx.app.error("GameOverScreen", "Sound konnte nicht geladen werden", e);
         }
