@@ -154,8 +154,8 @@ public class MainMenu implements Screen {
 
             // Textstil anpassen
             if (isSelected) {
-                font.getData().setScale(3.5f); // Größer wenn ausgewählt
-                font.setColor(Color.RED); // Rote Farbe bei Auswahl
+                font.getData().setScale(3.3f); // Größer wenn ausgewählt
+                font.setColor(Color.BLUE); // Rote Farbe bei Auswahl
             } else {
                 font.getData().setScale(3f); // Normale Größe
                 font.setColor(Color.WHITE);

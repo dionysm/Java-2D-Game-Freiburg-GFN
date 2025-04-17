@@ -13,10 +13,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -43,12 +41,12 @@ public class GameOverScreen implements Screen {
     private final String message = "GAME OVER";
     private TextField nameField;
     private Skin skin;
-    private String playerName = "Player";
+    private String playerName = "Spieler";
+    private boolean musicStarted = false;
+    private float musicDelay = 2.5f; // 2,5 Sekunden Verzögerung für die Musik
+    private float soundPlayedTime = 0;
 
     public GameOverScreen(Main game, int finalScore) {
-        AudioController.getInstance().stopMusic("backgroundMusic");
-        AudioController.getInstance().loadMusic("GameOver", "GameOver.ogg");
-        AudioController.getInstance().playMusic("GameOver");
         this.game = game;
         this.finalScore = finalScore;
     }
@@ -63,20 +61,20 @@ public class GameOverScreen implements Screen {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
-        // Button Farben (Ani-Ton)
-        Color normalColor = new Color(0.4f, 0.6f, 1f, 1f);
-        Color pressedColor = new Color(0.8f, 0.2f, 0.2f, 1f);
-        Color hoverColor = new Color(1f, 0.6f, 0.6f, 1f);
+        // Farben für Buttons definieren
+        Color normalColor = new Color(0.4f, 0.6f, 1f, 1f); // Hellblau
+        Color pressedColor = new Color(0.8f, 0.2f, 0.2f, 1f); // Rot
+        Color hoverColor = new Color(1f, 0.6f, 0.6f, 1f); // Rosa
 
         Texture buttonTexture = createButtonTexture(400, 80, normalColor);
         Texture buttonPressedTexture = createButtonTexture(400, 80, pressedColor);
         Texture buttonHoverTexture = createButtonTexture(400, 80, hoverColor);
 
-        // Stil für Buttons
+        // Stil für Buttons definieren
         final BitmapFont buttonFont = new BitmapFont();
         buttonFont.getData().setScale(2.1f);
 
-        TextButtonStyle buttonStyle = new TextButtonStyle();
+        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = buttonFont;
         buttonStyle.fontColor = Color.WHITE;
         buttonStyle.overFontColor = Color.RED;
@@ -91,10 +89,11 @@ public class GameOverScreen implements Screen {
         restartButton.setSize(400, 80);
         menuButton.setSize(400, 80);
 
-        restartButton.setPosition(Gdx.graphics.getWidth()/2f - 200f, Gdx.graphics.getHeight()/2f - 50f);
-        menuButton.setPosition(Gdx.graphics.getWidth()/2f - 200f, Gdx.graphics.getHeight()/2f - 150f);
+        // Positionen der Buttons festlegen - diese werden später angepasst
+        restartButton.setPosition(Gdx.graphics.getWidth()/2f - 200f, Gdx.graphics.getHeight()/2f - 150f);
+        menuButton.setPosition(Gdx.graphics.getWidth()/2f - 200f, Gdx.graphics.getHeight()/2f - 250f);
 
-        // Listener hinzufügen
+        // Listener für Buttons hinzufügen
         restartButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -114,44 +113,51 @@ public class GameOverScreen implements Screen {
         stage.addActor(restartButton);
         stage.addActor(menuButton);
 
-        // Soundeffekt
+        // Game Over Sound laden
         try {
             gameOverSound = Gdx.audio.newSound(Gdx.files.internal("sfx/gameover-86548.ogg"));
         } catch (Exception e) {
             Gdx.app.error("GameOverScreen", "Sound konnte nicht geladen werden", e);
         }
 
-        // Skin laden
+        // Skin für UI-Elemente laden
         skin = new Skin(Gdx.files.internal("db/uiskin.json"));
 
-        // Stil für TextField (weißes Feld)
+        // Stil für TextField definieren (weißes Feld mit größerer Schrift)
         TextFieldStyle textFieldStyle = new TextFieldStyle();
-
-        // Eingabe-Font erstellen und vergrößern
         BitmapFont inputFont = new BitmapFont();
-        inputFont.getData().setScale(2.2f); // Schriftgröße erhöhen
+        inputFont.getData().setScale(2f);
         textFieldStyle.font = inputFont;
-
         textFieldStyle.fontColor = Color.BLACK;
-
-        // Weißer Hintergrund
         Pixmap white = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         white.setColor(Color.WHITE);
         white.fill();
         textFieldStyle.background = new TextureRegionDrawable(new Texture(white));
 
-
-        // Name Eingabe
+        // TextField für den Namen erstellen
         nameField = new TextField("", textFieldStyle);
         nameField.setMessageText("Dein Name");
         nameField.setSize(300, 60);
-        nameField.setPosition(Gdx.graphics.getWidth()/2f - 310f, Gdx.graphics.getHeight()/2f + 40f);
 
-        // Submit Button
+        // Submit Button für Highscore erstellen
         submitButton = new TextButton("Highscore speichern", buttonStyle);
         submitButton.setSize(300, 60);
-        submitButton.setPosition(Gdx.graphics.getWidth()/2f + 10f, Gdx.graphics.getHeight()/2f + 40f);
 
+        // Positionierung der Elements berechnen
+        float textY = Gdx.graphics.getHeight() - 100f;
+        float scoreY = textY - 80f;
+
+        // Score und Eingabefeld positionieren - genau zwischen Score und erstem Button
+        float inputY = scoreY - 100f;  // Genügend Abstand zum Score
+
+        nameField.setPosition(Gdx.graphics.getWidth()/2f - 310f, inputY);
+        submitButton.setPosition(Gdx.graphics.getWidth()/2f + 10f, inputY);
+
+        // Buttons nach unten verschieben um Platz für das Eingabefeld zu schaffen
+        restartButton.setPosition(Gdx.graphics.getWidth()/2f - 200f, inputY - 100f);
+        menuButton.setPosition(Gdx.graphics.getWidth()/2f - 200f, inputY - 200f);
+
+        // Listener für Submit Button
         submitButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -168,8 +174,12 @@ public class GameOverScreen implements Screen {
 
         stage.addActor(nameField);
         stage.addActor(submitButton);
+
+        // Hintergrundmusik stoppen
+        AudioController.getInstance().stopMusic("backgroundMusic");
     }
 
+    // Highscore in die Datenbank speichern
     private void saveHighscore() {
         HighscoreManager.getInstance().saveHighscore(playerName, finalScore);
         System.out.println("Highscore gespeichert für: " + playerName);
@@ -177,14 +187,29 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        // Hintergrund löschen
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // Zuerst den Game Over Sound abspielen
         if (!soundPlayed && gameOverSound != null) {
             gameOverSound.play(0.7f);
             soundPlayed = true;
+            soundPlayedTime = 0; // Timer zur Verzögerung der Musik zurücksetzen
         }
 
+        // Nach einem Zeitintervall die Hintergrundmusik starten
+        if (soundPlayed && !musicStarted) {
+            soundPlayedTime += delta;
+            if (soundPlayedTime >= musicDelay) {
+                // Game Over Musik nach der Verzögerung starten
+                AudioController.getInstance().loadMusic("GameOver", "GameOver.ogg");
+                AudioController.getInstance().playMusic("GameOver");
+                musicStarted = true;
+            }
+        }
+
+        // Texte zeichnen
         batch.begin();
         font.setColor(1, 0.2f, 0.2f, 1);
         float textX = Gdx.graphics.getWidth()/2f - glyphLayout.width/2f;
@@ -199,10 +224,12 @@ public class GameOverScreen implements Screen {
         font.getData().setScale(4);
         batch.end();
 
+        // Bühne aktualisieren und zeichnen
         stage.act(delta);
         stage.draw();
     }
 
+    // Texture für Buttons erzeugen
     private Texture createButtonTexture(int width, int height, Color color) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
@@ -216,20 +243,21 @@ public class GameOverScreen implements Screen {
         return texture;
     }
 
+    // Neues Spiel starten
     private void startNewGame() {
         AudioController.getInstance().stopMusic("GameOver");
         game.setScreen(new StartGame(true));
         dispose();
     }
 
+    // Zurück zum Hauptmenü
     private void returnToMainMenu() {
         AudioController.getInstance().stopMusic("GameOver");
         game.setScreen(new MainMenu(game));
         dispose();
     }
 
-    @Override
-    public void resize(int width, int height) {
+    @Override public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
     }
 
@@ -237,8 +265,8 @@ public class GameOverScreen implements Screen {
     @Override public void resume() {}
     @Override public void hide() {}
 
-    @Override
-    public void dispose() {
+    // Ressourcen freigeben wenn Bildschirm geschlossen wird
+    @Override public void dispose() {
         if (batch != null) batch.dispose();
         if (font != null) font.dispose();
         if (stage != null) stage.dispose();
