@@ -126,12 +126,20 @@ public class GameOverScreen implements Screen {
 
         // Stil für TextField (weißes Feld)
         TextFieldStyle textFieldStyle = new TextFieldStyle();
-        textFieldStyle.font = new BitmapFont();
+
+        // Eingabe-Font erstellen und vergrößern
+        BitmapFont inputFont = new BitmapFont();
+        inputFont.getData().setScale(2.2f); // Schriftgröße erhöhen
+        textFieldStyle.font = inputFont;
+
         textFieldStyle.fontColor = Color.BLACK;
+
+        // Weißer Hintergrund
         Pixmap white = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         white.setColor(Color.WHITE);
         white.fill();
         textFieldStyle.background = new TextureRegionDrawable(new Texture(white));
+
 
         // Name Eingabe
         nameField = new TextField("", textFieldStyle);
