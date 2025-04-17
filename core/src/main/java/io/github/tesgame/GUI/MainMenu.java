@@ -36,14 +36,8 @@ public class MainMenu implements Screen {
 
         // Hintergrundbild laden
         try {
-            if (Gdx.files.internal("MainMenuBackground.png").exists()) {
-                bg = new Texture(Gdx.files.internal("MainMenuBackground.png"));
-            }
-            else if (Gdx.files.internal("images/MainMenuBackground.png").exists()) {
-                bg = new Texture(Gdx.files.internal("images/MainMenuBackground.png"));
-            }
-            else if (Gdx.files.internal("assets/MainMenuBackground.png").exists()) {
-                bg = new Texture(Gdx.files.internal("assets/MainMenuBackground.png"));
+            if (Gdx.files.internal("sprites/Splash.png").exists()) {
+                bg = new Texture(Gdx.files.internal("sprites/Splash.png"));
             }
             else {
                 System.out.println("Hintergrundbild nicht gefunden.");
